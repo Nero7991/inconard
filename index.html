@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+	<html>
+	<head>
+		<script>document.createElement("socket")</script>
+		<script>document.createElement("name")</script>
+		<script>document.createElement("project")</script>
+		<script src="/socket.io/socket.io.js"></script>
+		<script src="jquery.min.js"></script>
+		<script src="knob.js"></script>
+		<style>
+			.center {
+				margin: auto;
+				width: 60%;
+				padding: 10px;
+			}
+
+			.set-button button {
+					margin: auto;
+    					height: 70%;
+    					padding: 0;
+    					background:url("icons/clock.png");
+    					
+    					width: 70%;
+					border: 0
+			}	
+
+			.set-button button:hover {
+				border: 2px solid black;
+			}
+
+			#close-CSS {
+				 center;
+   				background-image: url("icons/clock.png");
+				background-repeat: no-repeat;
+				background-position: center;
+				background-size: 50px 50px;
+				margin: auto;
+				
+			}
+
+			.btn-group1 button {
+				margin: auto;
+				text-align: center;
+   				background-color: #777; 		 /* Green background */
+				border: 2px solid grey;			 /* Green border */
+				border-radius: 16px;
+				color: white;					 /* White text */
+				padding: 14px 24px; 				 /* Some padding */
+				cursor: pointer; 				 /* Pointer/hand icon */
+				width: 80%; 						 /* Set a width if needed */
+				height: 60px;
+				display: block; 					 /* Make the buttons appear below each other */
+			}
+
+			.btn-group1 button:not(:last-child) {
+				border-bottom: none; /* Prevent double borders */
+			}
+
+			/* Add a background color on hover */
+			.btn-group1 button:hover {
+				border: 2px solid black;
+			}	
+
+			.btn-group button {
+				margin: auto;
+				text-align: center;
+   				background-color: red; 		 /* Green background */
+				border: 2px solid grey;			 /* Green border */
+				border-radius: 16px;
+				color: white;					 /* White text */
+				padding: 14px 24px; 				 /* Some padding */
+				cursor: pointer; 				 /* Pointer/hand icon */
+				width: 80%; 						 /* Set a width if needed */
+				height: 60px;
+				display: block; 					 /* Make the buttons appear below each other */
+			}
+
+			.btn-group button:not(:last-child) {
+				border-bottom: none; /* Prevent double borders */
+			}
+
+			/* Add a background color on hover */
+			.btn-group button:hover {
+				border: 2px solid black;
+			}
+
+			.wrapper {
+				border-radius: 16px;
+				background-color: #a6a6a6;
+ 				margin-right: auto; /* 1 */
+ 				margin-left:  auto; /* 1 */
+
+  				max-width: 960px; /* 2 */
+
+  				padding-right: 10px; /* 3 */
+  				padding-left:  10px; /* 3 */
+				padding-bottom: 10px;
+			}
+
+			.main-wrapper {
+ 				margin:  auto; /* 1 */
+  				padding-right: 10px; /* 3 */
+  				padding-left:  10px; /* 3 */
+				padding-bottom: 30px;
+			}
+			
+			.column {
+  				float: left;
+  				width: 48%;
+				padding: 1%;
+				padding-bottom: 8px;
+				padding-top: 8px;
+			}	
+
+			.column1 {
+  				float: left;
+  				width: 80%;
+			}
+
+			.column2 {
+  				float: right;
+  				width: 20%;
+			}			
+
+			/* Clear floats after the columns */
+			.row:after {
+			  	content: "";
+			  	display: table;
+			  	clear: both;
+			}
+
+			header {
+				border-radius: 16px;
+				background-color: #1a1a1a;
+				padding: 38px;
+				text-align: center;
+				font-size: 45px;
+				color: white;
+			}
+
+			body {
+				width: 80%;
+				
+				margin:0 auto;
+				height: 100%;
+				text-align: center;
+				background-color: #595959;	
+			}
+
+			socket {
+				display: block;
+				padding: 8px;
+				font-size: 26px;
+			} 
+			 
+			name {
+				display: block;
+				background-color: #666666;
+				border: 1px solid black;	
+				border-radius: 10px;
+				padding: 10px;
+				margin: 8px auto;
+				width: 50%;
+				font-size: 22px;
+				color: white;
+				text-align: center;
+			}
+
+			project {
+				display: block;
+				background-color: #262626;
+				border-radius: 16px;
+				padding: 24px;
+				font-size: 35px;
+				color: white;
+			}
+
+			footer {
+				border-radius: 16px;
+				padding: 24px;
+				background-color: #777;
+				text-align: center;
+				color: black;
+			}
+		</style>
+		
+	</head>
+ 	<body onload="initialize();">
+		<script>
+			var socket = io();
+			function initialize(){
+				document.getElementById("allon").style.background = "orange";
+				document.getElementById("alloff").style.background = "orange";
+				refreshButtonStates();
+			}
+
+			function refreshButtonStates(){
+				updateButtonState(document.getElementById("1"));
+				updateButtonState(document.getElementById("2"));
+				updateButtonState(document.getElementById("3"));
+				updateButtonState(document.getElementById("4"));
+			}
+		
+			var Timer1 = setInterval(refreshButtonStates, 200);
+			var State1, State2, State3, State4;
+
+			function turnAllOn(button){
+				$.ajax({												
+					url: "/turnAllOn?socket="+button.id, 
+					success: function(result){
+						refreshButtonStates();
+        				}
+				});
+			}
+
+			function turnAllOff(button){
+				$.ajax({												
+					url: "/turnAllOff?socket="+button.id, 
+					success: function(result){
+						refreshButtonStates();
+        				}
+				});
+			}
+		
+			function togglePressed(button){							//Called when button is pressed with argument being the button itself
+				toggleSocket(button);
+			}
+
+			function updateButtonState(button){						//Gets the pin state for the pin that controls the TRIAC referenced
+				$.ajax({												//by the button and updates the button color accrodingly
+					url: "/getStatus?socket="+button.id, 
+					success: function(result){
+						if(result == "State1"){
+							button.style.background = "#4CAF50";	
+						}
+						else	{
+							button.style.background = "red";
+						}
+        				}
+				});
+			}
+
+			function toggleSocket(button){							//Toggles the pin that controls the TRIAC for the socket 
+				socket.emit('button pressed', button.id);
+				$.ajax({												//referenced by the button and updates the button color to
+					url: "/toggleSocket?socket="+button.id, 			//represent the new state. The new state is received from the board
+					success: function(result){						//itself. Thus, the color represents the actual value of the pin.
+						if(result == "State1"){
+							button.style.background = "#4CAF50";	
+						}
+						else	{
+							button.style.background = "red";
+						}
+        				}
+				});
+			}
+			
+		
+		</script>
+		<header>Networked Power Strip</header>
+		<div class="container">
+			<div class="row">
+				<div class="column">
+					<div class="wrapper">
+						<div class="row">
+							<socket id="s1">Socket 1</socket>
+						</div>
+						<div class="row">
+							<div class="column1">
+								<div class="btn-group">
+									<button type="button" onclick="togglePressed(this)" id="1">Toggle</button>
+								</div>
+							</div>
+							<div class="column2">
+								<div class="btn-group1">
+									<button id="close-CSS" type="button" onlcick="changeSettings(this)" id="set1"></button>
+								</div>
+							</di	v>
+						</div>
+					</div>
+				</div>
+			</div>
+				<div class="column">
+					<div class="wrapper">
+						<div class="row">
+							<socket id="s2">Socket 2</socket>
+						</div>
+						<div class="row">
+							<div class="column1">
+								<div class="btn-group">
+									<button type="button" onclick="togglePressed(this)" id="2">Toggle</button>
+								</div>
+							</div>
+							<div class="column2">
+								<div class="btn-group1">
+									<button id="close-CSS" type="button" onlcick="changeSettings(this)" id="set2"></button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="column">
+					<div class="wrapper">
+						<div class="row">
+							<socket id="s1">Socket 3</socket>
+						</div>
+						<div class="row">
+							<div class="column1">
+								<div class="btn-group">
+									<button type="button" onclick="togglePressed(this)" id="3">Toggle</button>
+								</div>
+							</div>
+							<div class="column2">
+								<div class="btn-group1">
+									<button id="close-CSS" type="button" onlcick="changeSettings(this)" id="set3"></button>
+								</div>
+							</di	v>
+						</div>
+					</div>
+				</div>
+			</div>
+				<div class="column">
+					<div class="wrapper">
+						<div class="row">
+							<socket id="s2">Socket 4</socket>
+						</div>
+						<div class="row">
+							<div class="column1">
+								<div class="btn-group">
+									<button type="button" onclick="togglePressed(this)" id="4">Toggle</button>
+								</div>
+							</div>
+							<div class="column2">
+								<div class="btn-group1">
+									<button id="close-CSS" type="button" onlcick="changeSettings(this)" id="set4"></button>
+								</div>
+							</di	v>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="column">
+					<div class="wrapper">
+						<div class="row">
+							<socket id="s2">All On</socket>
+						</div>
+						<div class="row">
+							<div class="btn-group">
+								<button type="button" onclick="turnAllOn(this)" id="allon"></button>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="column">
+					<div class="wrapper">
+						<div class="row">
+							<socket id="s2">All Off</socket>
+						</div>
+						<div class="row">
+							<div class="btn-group">
+								<button type="button" onclick="turnAllOff(this)" id="alloff"></button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<footer>
+			<project>BE Project 2018-19</Project>
+			<name>Oren Collaco</name>
+			<name>Oshan Pereira</name>
+			<name>Maria Roseline Chettiar</name>
+			<name>Under Guidance of <br>
+				Prof. Shilpa Patil</name>
+		</footer>
+	</body>
+</html>
+
+

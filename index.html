@@ -5,8 +5,8 @@
 		<script>document.createElement("name")</script>
 		<script>document.createElement("project")</script>
 		<script src="/socket.io/socket.io.js"></script>
-		<script src="jquery.min.js"></script>
-		<script src="knob.js"></script>
+		<script src="/js/jquery.min.js"></script>
+		<script src="/js/knob.js"></script>
 		<style>
 			.center {
 				margin: auto;
@@ -132,10 +132,23 @@
 			header {
 				border-radius: 16px;
 				background-color: #1a1a1a;
-				padding: 38px;
+				padding: 16px;
 				text-align: center;
-				font-size: 45px;
+				font-size: 32px;
 				color: white;
+			}
+
+			inco {
+				letter-spacing: 1px;
+				text-align: center;
+				font-size: 65px;
+				color: white;
+			}
+
+			p	{
+				letter-spacing: 1px;
+				font-size: 20px;
+				color: #a6a6a6;
 			}
 
 			body {
@@ -145,6 +158,7 @@
 				height: 100%;
 				text-align: center;
 				background-color: #595959;	
+				max-width: 1200px;
 			}
 
 			socket {
@@ -167,11 +181,12 @@
 			}
 
 			project {
+				letter-spacing: 1px;
 				display: block;
 				background-color: #262626;
 				border-radius: 16px;
 				padding: 24px;
-				font-size: 35px;
+				font-size: 32px;
 				color: white;
 			}
 
@@ -191,7 +206,11 @@
 			function initialize(){
 				document.getElementById("allon").style.background = "orange";
 				document.getElementById("alloff").style.background = "orange";
-				refreshButtonStates();
+				//refreshButtonStates();
+				State1 = "OFF";
+				State2 = "OFF";
+				State3 = "OFF";
+				State4 = "OFF";
 			}
 
 			function refreshButtonStates(){
@@ -201,8 +220,7 @@
 				updateButtonState(document.getElementById("4"));
 			}
 		
-			var Timer1 = setInterval(refreshButtonStates, 200);
-			var State1, State2, State3, State4;
+			var State1, State2, State3, State4, OnColor = "#4CAF50", OffColor = "red";
 
 			function turnAllOn(button){
 				$.ajax({												
@@ -222,12 +240,14 @@
 				});
 			}
 		
-			function togglePressed(button){							//Called when button is pressed with argument being the button itself
+/* Called when button is pressed with argument being the button itself */
+
+			function togglePressed(button){							
 				toggleSocket(button);
 			}
 
-			function updateButtonState(button){						//Gets the pin state for the pin that controls the TRIAC referenced
-				$.ajax({												//by the button and updates the button color accrodingly
+			function updateButtonState(button){					
+				$.ajax({												
 					url: "/getStatus?socket="+button.id, 
 					success: function(result){
 						if(result == "State1"){
@@ -240,11 +260,14 @@
 				});
 			}
 
-			function toggleSocket(button){							//Toggles the pin that controls the TRIAC for the socket 
+
+/*Toggles the pin that controls the TRIAC for the socket referenced by the button and updates the button color to represent the new state. The new state is received from the board itself. Thus, the color represents the actual value of the pin.*/
+
+			function toggleSocket(button){							
 				socket.emit('button pressed', button.id);
-				$.ajax({												//referenced by the button and updates the button color to
-					url: "/toggleSocket?socket="+button.id, 			//represent the new state. The new state is received from the board
-					success: function(result){						//itself. Thus, the color represents the actual value of the pin.
+				$.ajax({											
+					url: "/toggleSocket?socket="+button.id, 			
+					success: function(result){					
 						if(result == "State1"){
 							button.style.background = "#4CAF50";	
 						}
@@ -257,7 +280,9 @@
 			
 		
 		</script>
-		<header>Networked Power Strip</header>
+		<header>
+			<inco>inConard</inco>
+		</header>
 		<div class="container">
 			<div class="row">
 				<div class="column">
@@ -369,7 +394,7 @@
 			</div>
 		</div>
 		<footer>
-			<project>BE Project 2018-19</Project>
+			<project>Bachelor Year Project 2019</Project>
 			<name>Oren Collaco</name>
 			<name>Oshan Pereira</name>
 			<name>Maria Roseline Chettiar</name>

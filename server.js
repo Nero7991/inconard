@@ -9,6 +9,7 @@ var Boarddb = mysql.createConnection({
 		password : 'Orencollaco123',
 		database: 'boardDB'
 })
+var BoardName, BoardID, SocketState;
 
 // Log any errors connected to the db
 Boarddb.connect(function(err){
@@ -26,9 +27,27 @@ io.on('connection', function(socket){
   socket.on('disconnect', function(){
     console.log('User disconnected');
 	});
-	socket.on('button pressed', function(msg){
-    console.log('Button Pressed: ' + msg);
-		Boarddb.query('UPDATE Sockets SET Socket_ReqState = \'OFF\' WHERE Socket_id = ?', Number(msg));
+	socket.on('button pressed', function(SocketNo, BoardName){
+    console.log('Button '+String(SocketNo)+ ' pressed for board \'' + String(BoardName)+'\'');
+		Boarddb.query('SELECT Board_id FROM Boards WHERE Board_name = ?', String(BoardName))
+					 .on('result', function(res){
+							BoardID = res.Board_id;
+						})
+						.on('end', function(){
+                console.log('Board ID=' + Number(BoardID));
+								Boarddb.query('SELECT Socket_State FROM Sockets WHERE Socket_No = ? AND Board_id = ?', [Number(SocketNo), BoardID])
+										.on('result', function(res){
+												SocketState = String(res.Socket_State);
+											})
+										.on('end', function(){
+               				 console.log('Socket state=' + SocketState);
+												if(SocketState == "OFF")
+												Boarddb.query('UPDATE Sockets SET Socket_ReqState = \'ON\' WHERE Socket_No = ? AND Board_id = ?', [Number(SocketNo), BoardID]);
+												else
+												Boarddb.query('UPDATE Sockets SET Socket_ReqState = \'OFF\' WHERE Socket_No = ? AND Board_id = ?', [Number(SocketNo), BoardID]);
+												Boarddb.query('UPDATE Sockets SET Socket_Status = \'Updating\' WHERE Socket_No = ? AND Board_id = ?', [Number(SocketNo), BoardID]);
+            			});
+            });
   });
 });
 

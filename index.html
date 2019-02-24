@@ -203,6 +203,8 @@
  	<body onload="initialize();">
 		<script>
 			var socket = io();
+			var State1, State2, State3, State4, OnColor = "#4CAF50", OffColor = "red";
+			var BoardName = "Proto1"
 			function initialize(){
 				document.getElementById("allon").style.background = "orange";
 				document.getElementById("alloff").style.background = "orange";
@@ -219,8 +221,6 @@
 				updateButtonState(document.getElementById("3"));
 				updateButtonState(document.getElementById("4"));
 			}
-		
-			var State1, State2, State3, State4, OnColor = "#4CAF50", OffColor = "red";
 
 			function turnAllOn(button){
 				$.ajax({												
@@ -264,7 +264,7 @@
 /*Toggles the pin that controls the TRIAC for the socket referenced by the button and updates the button color to represent the new state. The new state is received from the board itself. Thus, the color represents the actual value of the pin.*/
 
 			function toggleSocket(button){							
-				socket.emit('button pressed', button.id);
+				socket.emit('button pressed', button.id, BoardName);
 				$.ajax({											
 					url: "/toggleSocket?socket="+button.id, 			
 					success: function(result){					

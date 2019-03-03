@@ -1,6 +1,8 @@
 var express = require('express'); // Get the module
 var app = express();
 var http = require('http').Server(app);
+var https = require('https');
+var fs = require('fs');
 var io = require('socket.io')(http);
 var mysql = require('mysql');
 var Boarddb = mysql.createConnection({
@@ -9,6 +11,12 @@ var Boarddb = mysql.createConnection({
 		password : 'Orencollaco123',
 		database: 'boardDB'
 })
+
+var options = {
+  key: fs.readFileSync('client-key.pem'),
+  cert: fs.readFileSync('client-cert.pem')
+};
+
 var BoardName, BoardID, SocketState;
 
 // Log any errors connected to the db
@@ -17,6 +25,16 @@ Boarddb.connect(function(err){
 })
 
 app.use(express.static('public'));
+
+app.use (function (req, res, next) {
+        if (req.secure) {
+                // request was via https, so do no special handling
+                next();
+        } else {
+                // request was via http, so redirect to https
+                res.redirect('https://' + req.headers.host + req.url);
+        }
+});
 
 app.get('/', function(req, res){
   res.sendFile(__dirname + '/index.html');
@@ -51,6 +69,11 @@ io.on('connection', function(socket){
   });
 });
 
-http.listen(80, function(){
+http.listen(8080, function(){
   console.log('listening on *:80');
+});
+
+// Create an HTTPS service identical to the HTTP service.
+https.createServer(options, app).listen(3000, function(){
+  console.log('listening on *:443');
 });

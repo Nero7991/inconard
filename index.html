@@ -2,6 +2,7 @@
 	<html>
 	<head>
 		<script>document.createElement("socket")</script>
+		<script>document.createElement("status")</script>
 		<script>document.createElement("name")</script>
 		<script>document.createElement("project")</script>
 		<script src="/socket.io/socket.io.js"></script>
@@ -41,7 +42,7 @@
 			.btn-group1 button {
 				margin: auto;
 				text-align: center;
-   				background-color: #777; 		 /* Green background */
+   			background-color: #777; 		 /* Green background */
 				border: 2px solid grey;			 /* Green border */
 				border-radius: 16px;
 				color: white;					 /* White text */
@@ -180,6 +181,17 @@
 				text-align: center;
 			}
 
+			status {
+				display: block;
+				background-color: #800000;
+				border-radius: 14px;
+				padding: 5px;
+				margin: 8px auto;
+				font-size: 20px;
+				color: white;
+				text-align: center;
+			}
+
 			project {
 				letter-spacing: 1px;
 				display: block;
@@ -206,6 +218,7 @@
 			var State1, State2, State3, State4, OnColor = "#4CAF50", OffColor = "red";
 			var BoardName = "Proto1"
 			function initialize(){
+				
 				document.getElementById("allon").style.background = "orange";
 				document.getElementById("alloff").style.background = "orange";
 				//refreshButtonStates();
@@ -283,9 +296,17 @@
 		<header>
 			<inco>inConard</inco>
 		</header>
-		<div class="container">
-			<div class="row">
-				<div class="column">
+		<div class="container">			<!--Container opens here-->
+			<status>
+				<div class="row">
+					<div class="column">Board Name: Proto1
+					</div>
+					<div class="column">Status: Disconnected
+					</div>
+				</div>
+			</status>		
+			<div class="row">					<!--Main row start-->
+				<div class="column">			<!--Main column 1 start-->
 					<div class="wrapper">
 						<div class="row">
 							<socket id="s1">Socket 1</socket>
@@ -300,12 +321,11 @@
 								<div class="btn-group1">
 									<button id="close-CSS" type="button" onlcick="changeSettings(this)" id="set1"></button>
 								</div>
-							</di	v>
+							</div>
 						</div>
 					</div>
-				</div>
-			</div>
-				<div class="column">
+				</div>										<!--Main column 1 end-->
+				<div class="column">			<!--Main column 2 start-->
 					<div class="wrapper">
 						<div class="row">
 							<socket id="s2">Socket 2</socket>
@@ -323,10 +343,10 @@
 							</div>
 						</div>
 					</div>
-				</div>
-			</div>
-			<div class="row">
-				<div class="column">
+				</div>										<!--Main column 2 end-->											
+			</div>											<!--Main row end-->
+			<div class="row">					<!--Main row start-->
+				<div class="column">			<!--Main column 1 start-->
 					<div class="wrapper">
 						<div class="row">
 							<socket id="s1">Socket 3</socket>
@@ -341,12 +361,11 @@
 								<div class="btn-group1">
 									<button id="close-CSS" type="button" onlcick="changeSettings(this)" id="set3"></button>
 								</div>
-							</di	v>
+							</div>
 						</div>
 					</div>
-				</div>
-			</div>
-				<div class="column">
+				</div>										<!--Main column 1 end-->
+				<div class="column">			<!--Main column 2 start-->
 					<div class="wrapper">
 						<div class="row">
 							<socket id="s2">Socket 4</socket>
@@ -361,13 +380,13 @@
 								<div class="btn-group1">
 									<button id="close-CSS" type="button" onlcick="changeSettings(this)" id="set4"></button>
 								</div>
-							</di	v>
+							</div>
 						</div>
 					</div>
-				</div>
-			</div>
-			<div class="row">
-				<div class="column">
+				</div>										<!--Main column 2 end-->	
+			</div>											<!--Main row end-->
+			<div class="row">					<!--Main row start-->
+				<div class="column">			<!--Main column 1 start-->
 					<div class="wrapper">
 						<div class="row">
 							<socket id="s2">All On</socket>
@@ -378,8 +397,8 @@
 							</div>
 						</div>
 					</div>
-				</div>
-				<div class="column">
+				</div>										<!--Main column 1 end-->
+				<div class="column">			<!--Main column 2 start-->
 					<div class="wrapper">
 						<div class="row">
 							<socket id="s2">All Off</socket>
@@ -390,9 +409,9 @@
 							</div>
 						</div>
 					</div>
-				</div>
-			</div>
-		</div>
+				</div>										<!--Main column 2 end-->
+			</div>											<!--Main row end-->
+		</div>												<!--Container closes here-->
 		<footer>
 			<project>Bachelor Year Project 2019</Project>
 			<name>Oren Collaco</name>

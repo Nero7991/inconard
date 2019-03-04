@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+	<html>
+	<head>
+		<script>document.createElement("login")</script>
+		<script>document.createElement("creden")</script>
+		<script>document.createElement("name")</script>
+		<script>document.createElement("project")</script>
+		<script src="/socket.io/socket.io.js"></script>
+		<script src="/js/jquery.min.js"></script>
+		<style>
+			.center {
+				margin: auto;
+				width: 60%;
+				padding: 10px;
+			}
+
+			.column {
+  				float: left;
+  				width: 48%;
+				padding: 1%;
+				padding-bottom: 8px;
+				padding-top: 8px;
+			}
+
+			.column1 {
+  				float: left;
+  				width: 80%;
+			}
+
+			.column2 {
+  				float: right;
+  				width: 20%;
+			}
+
+			/* Clear floats after the columns */
+			.row:after {
+			  	content: "";
+			  	display: table;
+			  	clear: both;
+			}
+
+			inco {
+				letter-spacing: 1px;
+				text-align: center;
+				font-size: 65px;
+				color: white;
+			}
+
+			header {
+				border-radius: 16px;
+				background-color: #1a1a1a;
+				padding: 16px;
+				text-align: center;
+				font-size: 32px;
+				color: white;
+			}
+
+			body {
+				width: 80%;
+
+				margin:0 auto;
+				height: 100%;
+				text-align: center;
+				align-items: center;
+				background-color: #595959;
+				max-width: 1200px;
+			}
+
+			login {
+				display: block;
+				padding: 100px 150px;
+				font-size: 15px;
+				max-width: 450px;
+				align: center;
+				margin: 8px auto;
+			}
+
+			creden {
+				display: block;
+				background-color: #777;
+				border-radius: 14px;
+				padding: 20px;
+				margin: 8px auto;
+				font-size: 22px;
+				color: white;
+				align: center;
+			}
+
+			project {
+				letter-spacing: 1px;
+				display: block;
+				background-color: #262626;
+				border-radius: 16px;
+				padding: 24px;
+				font-size: 32px;
+				color: white;
+			}
+
+			name {
+				display: block;
+				background-color: #666666;
+				border: 1px solid black;
+				border-radius: 10px;
+				padding: 10px;
+				margin: 8px auto;
+				width: 50%;
+				font-size: 22px;
+				color: white;
+				text-align: center;
+			}
+
+			footer {
+				border-radius: 16px;
+				padding: 24px;
+				background-color: #777;
+				text-align: center;
+				color: black;
+			}
+
+			input[type=text], input[type=password] {
+				border-radius: 12px;
+			  width: 100%;
+			  padding: 12px 20px;
+			  margin: 8px 0;
+			  display: inline-block;
+			  border: 1px solid #ccc;
+			  box-sizing: border-box;
+			}
+
+			button {
+				border-radius: 12px;
+			  background-color: #262626;
+			  color: white;
+			  padding: 14px 20px;
+			  margin: 8px 0;
+			  border: none;
+			  cursor: pointer;
+			  width: 100%;
+			}
+
+			button:hover {
+			  opacity: 0.8;
+			}
+
+		</style>
+
+	</head>
+ 	<body onload="initialize();">
+		<script>
+			var socket = io();
+			var State1, State2, State3, State4, OnColor = "#4CAF50", OffColor = "red";
+			var BoardName = "Proto1"
+			function initialize(){
+			}
+
+		</script>
+
+
+		<header>
+			<inco>inConard</inco>
+		</header>
+		<div class="container">			<!--Container opens here-->
+			<login>
+				<creden>
+					<div class="row">
+				    <label for="uname"><b>Board Name</b></label>
+					</div>
+					<div class="row">
+				    <input type="text" placeholder="Enter board name" name="uname" required>
+					</div>
+					<div class="row">
+				    <label for="psw"><b>Password</b></label>
+					</div>
+					<div class="row">
+				    <input type="password" placeholder="Enter Password" name="psw" required>
+					</div>
+					<div class="row">
+				    <button type="submit">Login</button>
+					</div>
+					<div class="row">
+						<label>
+				      <input type="checkbox" checked="checked" name="remember"> Remember me
+				    </label>
+						</div>
+				</creden>
+			</login>
+		</div>												<!--Container closes here-->
+		<footer>
+			<project>Bachelor Year Project 2019</Project>
+			<name>Copyright OC 2019</name>
+		</footer>
+	</body>
+</html>

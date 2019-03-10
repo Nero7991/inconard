@@ -1,5 +1,13 @@
+process.on('uncaughtException', function (exception) {
+  console.log(exception); // to see your exception details in the console
+  // if you are on production, maybe you can send the exception details to your
+  // email as well ?
+});
+
 var express = require('express'); // Get the module
+var errorhandler = require('errorhandler');
 var app = express();
+app.use(errorhandler({ dumpExceptions: true, showStack: true }));
 var http = require('http').Server(app);
 var https = require('https');
 var fs = require('fs');
@@ -12,10 +20,12 @@ var Boarddb_config = {
 };
 var Boarddb = mysql.createConnection(Boarddb_config)
 var options = {
-  key: fs.readFileSync('/etc/letsencrypt/live/www.inconard.com/privkey.pem'), 
-	cert: fs.readFileSync('/etc/letsencrypt/live/www.inconard.com/cert.pem'), 
+  key: fs.readFileSync('/etc/letsencrypt/live/www.inconard.com/privkey.pem'),
+	cert: fs.readFileSync('/etc/letsencrypt/live/www.inconard.com/cert.pem'),
 	ca: fs.readFileSync('/etc/letsencrypt/live/www.inconard.com/chain.pem')
 };
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
 
 // Create an HTTPS service identical to the HTTP service.
 var server = https.createServer(options, app).listen(3000, function(){
@@ -34,7 +44,7 @@ Boarddb.connect(function(err) {              // The server is either down
       console.log('error when connecting to db:', err);
       setTimeout(handleDbDisconnect, 2000); // We introduce a delay before attempting to reconnect,
     }                                     // to avoid a hot loop, and to allow our node script to
-});    
+});
 
 Boarddb.on('error', function(err) {
     console.log('db error', err);
@@ -59,13 +69,90 @@ app.use (function (req, res, next) {
 });
 
 app.get('/', function(req, res){
-  res.sendFile(__dirname + '/index.html');
+  res.sendFile(__dirname + '/login.html');
 });
 
+app.get('/register.html', function(req, res){
+	res.sendFile(__dirname + '/register.html');
+});
+app.get('/', function(req, res){
+	res.sendFile(__dirname + req.headers.host + req.url);
+});
+var qres = null;
 io.on('connection', function(socket){
   console.log('User connected');
   socket.on('disconnect', function(){
     console.log('User disconnected');
+	});
+	socket.on('tryToLogin', function(Boardname, Password){
+    console.log('Login Attempt using Board name: ' + String(Boardname) + ' and password: ' + String(Password));
+		Boarddb.query('SELECT * FROM Boards WHERE Board_name = ?', Boardname)
+					 .on('result', function(res){
+							if(res){
+									console.log('Board found');
+									bcrypt.compare(Password, res.Board_pass, function(err, res1) {
+										if(err)
+										console.log('Bcrypt Error:' + err);
+	  								if(res1){
+										socket.emit('tryToLoginSuccess', Boardname);		//Tell client, login successful
+										console.log('Login success');
+										}
+									});
+							}
+							else {
+									socket.emit('tryToLoginFailed', 'NoBoard');
+									console.log('Login failed');
+							}
+					});
+
+	});
+	socket.on('tryToRegister', function(Boardname, Oldpassword, Newpassword){
+    console.log('Register Attempt using Board name: ' + String(Boardname) + ' ,Old password: ' + String(Oldpassword)
+	+ ' and new password: ' + String(Newpassword));
+
+		Boarddb.query('SELECT * FROM Boards WHERE Board_name = ?', Boardname)
+					 .on('result', function(res){
+						 if(res){
+							 console.log('Board found');
+							 if(res.Board_pass == "password"){
+								 console.log('Hashing...');;
+								 bcrypt.hash(Newpassword, saltRounds, function(err, hash) {
+									 if(err)
+									 console.log('Bcrypt Error:' + err);
+									 Boarddb.query('UPDATE Boards SET Board_pass = ? WHERE Board_name = ?', [hash, Boardname])	// Store hash in your password DB.
+									 socket.emit('tryToRegisterSuccess');		//Tell client, registered successful
+									 console.log('Registered successfully');
+								 });
+							 }
+							 else{
+								 bcrypt.compare(Oldpassword, res.Board_pass, function(err, comp_res) {
+										 if(err)
+										 console.log('Bcrypt Error:' + err);
+										 if(comp_res == true){
+											 bcrypt.hash(Newpassword, saltRounds, function(err, hash) {
+												 if(err)
+												 console.log('Bcrypt Error:' + err);
+												 Boarddb.query('UPDATE Boards SET Board_pass = ? WHERE Board_name = ?', [hash, BoardName])	// Store hash in your password DB.
+												 socket.emit('tryToRegisterSuccess');		//Tell client, registered successful
+												 console.log('Registered successfully');
+											 });
+										 }
+										 else {
+											 socket.emit('tryToRegisterFailed', 'Invalid');
+											 console.log('Registering failed');
+										 }
+								 });
+							 }
+						 }
+						 else {
+								 socket.emit('tryToRegisterFailed', 'NoBoard');
+								 console.log('Registering failed');
+						 }
+						})
+						.on('end', function(){
+
+							console.log('Query ended');
+						});
 	});
 	socket.on('button pressed', function(SocketNo, BoardName){
     process.stdout.write('Button '+String(SocketNo)+ ' pressed for board \'' + String(BoardName)+'\'');
@@ -88,11 +175,9 @@ io.on('connection', function(socket){
 												Boarddb.query('UPDATE Sockets SET Socket_Status = \'Updating\' WHERE Socket_No = ? AND Board_id = ?', [Number(SocketNo), BoardID]);
             			});
             });
-  });
+  	});
 });
 
 http.listen(8080, function(){
   console.log('listening on *:80');
 });
-
-

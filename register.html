@@ -154,14 +154,11 @@
 
 			function emitCredentials(){
 				var Boardname = document.getElementById("uname").value;
-				var password = document.getElementById("psw").value;
-				socket.emit('tryToLogin', Boardname, password);
+				var Oldpassword = document.getElementById("oldpsw").value;
+				var Newpassword = document.getElementById("newpsw").value;
+				socket.emit('tryToRegister', Boardname, Oldpassword, Newpassword);
 				return false;
 			}
-
-			socket.on('tryToLoginSuccess', function(BoardName){
-				window.location.href = "index.html?BoardName=" + BoardName;
-			});
 
 		</script>
 
@@ -180,24 +177,20 @@
 				    <input type="text" placeholder="Enter board name" id="uname" required>
 					</div>
 					<div class="row">
-				    <label for="psw"><b>Password</b></label>
+				    <label for="psw"><b>Old Password</b></label>
 					</div>
 					<div class="row">
-				    <input type="password" placeholder="Enter Password" id="psw" required>
+				    <input type="password" placeholder="Enter old password" id="oldpsw" required>
 					</div>
 					<div class="row">
-				    <button type="submit">Login</button>
+				    <label for="psw"><b>New Password</b></label>
 					</div>
 					<div class="row">
-						<label>
-				      <input type="checkbox" checked="checked" name="remember"> Remember me
-				    </label>
+				    <input type="password" placeholder="Enter new password" id="newpsw" required>
 					</div>
-					</form>
-					<form action="register.html">
-						<div class="row">
-					    <button type="submit">New? Register</button>
-						</div>
+					<div class="row">
+				    <button type="submit">Register</button>
+					</div>
 					</form>
 				</creden>
 			</login>

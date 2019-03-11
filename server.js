@@ -69,88 +69,134 @@ app.use (function (req, res, next) {
 });
 
 app.get('/', function(req, res){
+	console.log('GET URL: ', req.url);
   res.sendFile(__dirname + '/login.html');
 });
 
 app.get('/register.html', function(req, res){
 	res.sendFile(__dirname + '/register.html');
 });
-app.get('/', function(req, res){
-	res.sendFile(__dirname + req.headers.host + req.url);
+
+app.get('/board.html', function(req, res){
+	var qres = null;
+	console.log(req.query.session_id);
+	Boarddb.query('SELECT * FROM Boards WHERE Session_id = ?', req.query.session_id)
+				.on('result', function(res1){
+					qres = res1;
+				})
+				.on('end', function(){
+					if(qres){
+						res.sendFile(__dirname + '/board.html');
+					}
+					else {
+						res.sendFile(__dirname + '/login.html');
+					}
+					console.log('Query ended');
+				});
 });
-var qres = null;
+
 io.on('connection', function(socket){
   console.log('User connected');
   socket.on('disconnect', function(){
     console.log('User disconnected');
 	});
 	socket.on('tryToLogin', function(Boardname, Password){
-    console.log('Login Attempt using Board name: ' + String(Boardname) + ' and password: ' + String(Password));
+		var qres = null;
+    console.log('Login Attempt using Board name: ' + String(Boardname));
 		Boarddb.query('SELECT * FROM Boards WHERE Board_name = ?', Boardname)
-					 .on('result', function(res){
-							if(res){
-									console.log('Board found');
-									bcrypt.compare(Password, res.Board_pass, function(err, res1) {
-										if(err)
+					.on('result', function(res){
+						qres = res;
+					})
+					.on('end', function(){
+						if(qres){
+								bcrypt.compare(Password, qres.Board_pass, function(err, res1) {
+									if(err)
 										console.log('Bcrypt Error:' + err);
-	  								if(res1){
-										socket.emit('tryToLoginSuccess', Boardname);		//Tell client, login successful
+									if(res1){
 										console.log('Login success');
-										}
-									});
-							}
-							else {
-									socket.emit('tryToLoginFailed', 'NoBoard');
-									console.log('Login failed');
-							}
+										bcrypt.hash(Math.random().toString(), saltRounds, function(err, hash){
+											if(err)
+												console.log('Bcrypt Error:' + err);
+											Boarddb.query('UPDATE Boards SET Session_id = ? WHERE Board_name = ?', [hash, Boardname]);
+											socket.emit('tryToLoginSuccess', hash);		//Tell client, login successful
+										});
+									}
+									else {
+											console.log('Login failed');
+											socket.emit('tryToLoginFailed', "Incorrect board name or password, please try again.");
+									}
+								});
+						}
+						else {
+								console.log('Login failed');
+								socket.emit('tryToLoginFailed', "Board name does not exist, please try again.");
+						}
 					});
 
 	});
-	socket.on('tryToRegister', function(Boardname, Oldpassword, Newpassword){
-    console.log('Register Attempt using Board name: ' + String(Boardname) + ' ,Old password: ' + String(Oldpassword)
-	+ ' and new password: ' + String(Newpassword));
 
-		Boarddb.query('SELECT * FROM Boards WHERE Board_name = ?', Boardname)
-					 .on('result', function(res){
-						 if(res){
-							 console.log('Board found');
-							 if(res.Board_pass == "password"){
-								 console.log('Hashing...');;
-								 bcrypt.hash(Newpassword, saltRounds, function(err, hash) {
-									 if(err)
-									 console.log('Bcrypt Error:' + err);
-									 Boarddb.query('UPDATE Boards SET Board_pass = ? WHERE Board_name = ?', [hash, Boardname])	// Store hash in your password DB.
-									 socket.emit('tryToRegisterSuccess');		//Tell client, registered successful
-									 console.log('Registered successfully');
-								 });
-							 }
-							 else{
-								 bcrypt.compare(Oldpassword, res.Board_pass, function(err, comp_res) {
-										 if(err)
-										 console.log('Bcrypt Error:' + err);
-										 if(comp_res == true){
-											 bcrypt.hash(Newpassword, saltRounds, function(err, hash) {
-												 if(err)
-												 console.log('Bcrypt Error:' + err);
-												 Boarddb.query('UPDATE Boards SET Board_pass = ? WHERE Board_name = ?', [hash, BoardName])	// Store hash in your password DB.
-												 socket.emit('tryToRegisterSuccess');		//Tell client, registered successful
-												 console.log('Registered successfully');
-											 });
-										 }
-										 else {
-											 socket.emit('tryToRegisterFailed', 'Invalid');
-											 console.log('Registering failed');
-										 }
-								 });
-							 }
-						 }
-						 else {
-								 socket.emit('tryToRegisterFailed', 'NoBoard');
-								 console.log('Registering failed');
-						 }
+	socket.on('getBoardDetails', function(Session_id){
+		console.log(Session_id);
+		var qres = null;
+		Boarddb.query('SELECT * FROM Boards WHERE Session_id = ?', Session_id)
+						.on('result', function(res){
+							qres = res;
 						})
 						.on('end', function(){
+							if(qres){
+								console.log('Board found');
+								socket.emit('boardDetailsFromSession', qres);
+							}
+							else {
+								socket.emit('sessionNotFound');
+							}
+						});
+	});
 
+	socket.on('tryToRegister', function(Boardname, Oldpassword, Newpassword){
+		var qres = null;
+    console.log('Register Attempt using Board name: ' + String(Boardname));
+		Boarddb.query('SELECT * FROM Boards WHERE Board_name = ?', Boardname)
+					 .on('result', function(res){
+					  	qres = res;
+						})
+					 .on('end', function(){
+							if(qres){
+ 							 console.log('Board found');
+ 							 if(qres.Board_pass == "password"){
+ 								 console.log('Hashing...');;
+ 								 bcrypt.hash(Newpassword, saltRounds, function(err, hash) {
+ 									 if(err)
+ 									 console.log('Bcrypt Error:' + err);
+ 									 Boarddb.query('UPDATE Boards SET Board_pass = ? WHERE Board_name = ?', [hash, Boardname])	// Store hash in your password DB.
+ 									 socket.emit('tryToRegisterSuccess');		//Tell client, registered successful
+ 									 console.log('Registered successfully');
+ 								 });
+ 							 }
+ 							 else{
+ 								 bcrypt.compare(Oldpassword, res.Board_pass, function(err, comp_res) {
+ 										 if(err)
+ 										 console.log('Bcrypt Error:' + err);
+ 										 if(comp_res == true){
+ 											 bcrypt.hash(Newpassword, saltRounds, function(err, hash) {
+ 												 if(err)
+ 												 console.log('Bcrypt Error:' + err);
+ 												 Boarddb.query('UPDATE Boards SET Board_pass = ? WHERE Board_name = ?', [hash, BoardName])	// Store hash in your password DB.
+ 												 socket.emit('tryToRegisterSuccess');		//Tell client, registered successful
+ 												 console.log('Registered successfully');
+ 											 });
+ 										 }
+ 										 else {
+ 											 socket.emit('tryToRegisterFailed', 'Invalid');
+ 											 console.log('Registering failed');
+ 										 }
+ 								 });
+ 							 }
+ 						 }
+ 						 else {
+ 								 socket.emit('tryToRegisterFailed', 'NoBoard');
+ 								 console.log('Registering failed');
+ 						 }
 							console.log('Query ended');
 						});
 	});

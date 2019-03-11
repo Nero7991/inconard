@@ -150,18 +150,31 @@
 		<script>
 			var socket = io();
 			function initialize(){
+
 			}
 
 			function emitCredentials(){
+				document.getElementById("alert").style.display = 'none';
 				var Boardname = document.getElementById("uname").value;
 				var password = document.getElementById("psw").value;
-				socket.emit('tryToLogin', Boardname, password);
-				return false;
+				if(Boardname.length > 2 && password.length > 5){
+					socket.emit('tryToLogin', Boardname, password);
+				}
+				else {
+					document.getElementById("alert").innerHTML = "Boardname & password should be more than 2 & 6 characters long respectively";
+					document.getElementById("alert").style.display = 'block';
+				}
 			}
 
-			socket.on('tryToLoginSuccess', function(BoardName){
-				window.location.href = "index.html?BoardName=" + BoardName;
+			socket.on('tryToLoginSuccess', function(session_id){
+				window.location.href = "board.html?session_id=" + session_id;
 			});
+
+			socket.on('tryToLoginFailed', function(error){
+				document.getElementById("alert").innerHTML = error;
+				document.getElementById("alert").style.display = 'block';
+			});
+
 
 		</script>
 
@@ -186,17 +199,20 @@
 				    <input type="password" placeholder="Enter Password" id="psw" required>
 					</div>
 					<div class="row">
-				    <button type="submit">Login</button>
+						<label >
+				      <input type="checkbox" checked="checked" name="remember"><font size="3">Remember me</font>
+						</label>
 					</div>
 					<div class="row">
-						<label>
-				      <input type="checkbox" checked="checked" name="remember"> Remember me
-				    </label>
+				    <button type="submit">Login</button>
 					</div>
 					</form>
+					<div class="row">
+				    <label id="alert" style="display:none; font-size: 16px; color: blue">Incorrect boardname or password!</label>
+					</div>
 					<form action="register.html">
 						<div class="row">
-					    <button type="submit">New? Register</button>
+					    <button type="submit" style="background-color:#C0C0C0; color:black" >New? Register</button>
 						</div>
 					</form>
 				</creden>

@@ -149,16 +149,56 @@
  	<body onload="initialize();">
 		<script>
 			var socket = io();
+			var Timer, Session_token;
 			function initialize(){
-
+				checkCookie();
 			}
+
+			function setCookie(cname,cvalue,exdays) {
+			  var d = new Date();
+			  d.setTime(d.getTime() + (exdays*24*60*60*1000));
+			  var expires = "expires=" + d.toGMTString();
+			  document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+			}
+
+			function getCookie(cname) {
+			  var name = cname + "=";
+			  var decodedCookie = decodeURIComponent(document.cookie);
+			  var ca = decodedCookie.split(';');
+			  for(var i = 0; i < ca.length; i++) {
+			    var c = ca[i];
+			    while (c.charAt(0) == ' ') {
+			      c = c.substring(1);
+			    }
+			    if (c.indexOf(name) == 0) {
+			      return c.substring(name.length, c.length);
+			    }
+			  }
+			  return "";
+			}
+
+			function checkCookie() {
+			  Session_token = getCookie("session");
+			  if (Session_token != "") {
+					socket.emit('isSessionValid', Session_token);
+			  }
+			}
+
+			socket.on('sessionNotFound', function(){
+				document.cookie = "session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+			});
+
+			socket.on('sessionValid', function(){
+				window.location.href = "board.html?session_token=" + Session_token;
+			});
 
 			function emitCredentials(){
 				document.getElementById("alert").style.display = 'none';
 				var Boardname = document.getElementById("uname").value;
 				var password = document.getElementById("psw").value;
+				var remember = document.getElementById("remember").checked;
 				if(Boardname.length > 2 && password.length > 5){
-					socket.emit('tryToLogin', Boardname, password);
+					socket.emit('tryToLogin', Boardname, password, remember);
 				}
 				else {
 					document.getElementById("alert").innerHTML = "Boardname & password should be more than 2 & 6 characters long respectively";
@@ -166,8 +206,9 @@
 				}
 			}
 
-			socket.on('tryToLoginSuccess', function(session_id){
-				window.location.href = "board.html?session_id=" + session_id;
+			socket.on('tryToLoginSuccess', function(session_token){
+				setCookie("session", session_token, 7);
+				window.location.href = "board.html?session_token=" + session_token;
 			});
 
 			socket.on('tryToLoginFailed', function(error){
@@ -200,7 +241,7 @@
 					</div>
 					<div class="row">
 						<label >
-				      <input type="checkbox" checked="checked" name="remember"><font size="3">Remember me</font>
+				      <input type="checkbox" checked="checked" id="remember"><font size="3">Remember me</font>
 						</label>
 					</div>
 					<div class="row">

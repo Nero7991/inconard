@@ -3,7 +3,7 @@ process.on('uncaughtException', function (exception) {
   // if you are on production, maybe you can send the exception details to your
   // email as well ?
 });
-
+var connectedClients = 0;
 var express = require('express'); // Get the module
 var errorhandler = require('errorhandler');
 var app = express();
@@ -89,8 +89,8 @@ app.get('/login.html', function(req, res){
 
 app.get('/board.html', function(req, res){
 	var qres = null;
-	console.log(req.query.session_id);
-	Boarddb.query('SELECT * FROM Boards WHERE Session_id = ?', req.query.session_id)
+	console.log(req.query.session_token);
+	Boarddb.query('SELECT * FROM Sessions WHERE Session_token = ?', req.query.session_token)
 				.on('result', function(res1){
 					qres = res1;
 				})
@@ -106,11 +106,40 @@ app.get('/board.html', function(req, res){
 });
 
 io.on('connection', function(socket){
-  console.log('User connected');
+	var clientID, Remember1 = null;
+	var Session_token1 = null;
+	connectedClients += 1;
+	clientID = connectedClients;
+  console.log('User connected, Client ID : ' + clientID + ' Count : ' + connectedClients);
   socket.on('disconnect', function(){
-    console.log('User disconnected');
+		if(Session_token1 && Remember1 == 0){
+			Boarddb.query('DELETE FROM Sessions WHERE Session_token = ?', Session_token1, function(err, res){
+				if(err || (res.affectedRows == 0)){
+
+				}
+			});
+		}
+		connectedClients -= 1;
+    console.log('User disconnected, Client ID : ' + clientID + ' Count : ' + connectedClients);
 	});
-	socket.on('tryToLogin', function(Boardname, Password){
+
+	socket.on('isSessionValid', function(Session_token){
+		var qres = null;
+		Boarddb.query('SELECT * FROM Sessions WHERE Session_token = ?', Session_token)
+						.on('result', function(res){
+							qres = res;
+						})
+						.on('end', function(){
+							if(qres){
+								socket.emit('sessionValid');
+							}
+							else {
+								socket.emit('sessionNotFound');
+							}
+						});
+	});
+
+	socket.on('tryToLogin', function(Boardname, Password, Remember){
 		var qres = null;
     console.log('Login Attempt using Board name: ' + String(Boardname));
 		Boarddb.query('SELECT * FROM Boards WHERE Board_name = ?', Boardname)
@@ -127,13 +156,20 @@ io.on('connection', function(socket){
 										bcrypt.hash(Math.random().toString(), saltRounds, function(err, hash){
 											if(err)
 												console.log('Bcrypt Error:' + err);
-											Boarddb.query('UPDATE Boards SET Session_id = ? WHERE Board_name = ?', [hash, Boardname]);
-											socket.emit('tryToLoginSuccess', hash);		//Tell client, login successful
+											Boarddb.query('INSERT INTO Sessions (Session_token, Session_remember, Session_creation, Board_id, Board_name) VALUES (?, ?, ?, ?, ?)', [hash, Remember, (new Date()).toString(), qres.Board_id, qres.Board_name], function(err, result){
+												if(err || result.affectedRows == 0){
+													socket.emit('tryToLoginFailed', "Database error");
+												}
+												else{
+													socket.emit('tryToLoginSuccess', hash);		//Tell client, login successful
+												}
+											});
+
 										});
 									}
 									else {
 											console.log('Login failed');
-											socket.emit('tryToLoginFailed', "Incorrect board name or password, please try again.");
+											socket.emit('tryToLoginFailed', "Incorrect password, please try again.");
 									}
 								});
 						}
@@ -145,8 +181,8 @@ io.on('connection', function(socket){
 
 	});
 
-	socket.on('tryToLogout', function(Session_id){
-		Boarddb.query('UPDATE Boards SET Session_id = ? WHERE Session_id = ?', [null, Session_id], function(err, res){
+	socket.on('tryToLogout', function(Session_token){
+		Boarddb.query('DELETE FROM Sessions WHERE Session_token = ?', [Session_token], function(err, res){
 			if(err || (res.affectedRows == 0)){
 				socket.emit('tryToLogoutFailed', "Database error");
 			}
@@ -156,26 +192,39 @@ io.on('connection', function(socket){
 		});	//
 	});
 
-	socket.on('getBoardDetails', function(Session_id){
-		console.log(Session_id);
+	socket.on('getBoardDetails', function(Session_token){
+		//console.log(Session_token);
 		var qres = null;
 		var qres2 = null;
-		Boarddb.query('SELECT * FROM Boards WHERE Session_id = ?', Session_id)
+		var Board_id = null;
+		Session_token1 = Session_token;
+		Boarddb.query('SELECT * FROM Sessions WHERE Session_token = ?', Session_token)
 						.on('result', function(res){
 							qres = res;
 						})
 						.on('end', function(){
 							if(qres){
+								Remember1 = qres.Session_remember;
 								console.log('Board found');
 								//socket.emit('boardDetailsFromSession', qres);
-								Boarddb.query('SELECT * FROM Sockets WHERE Board_id = ?', qres.Board_id, function(err, res2){
-									qres2 = res2;
-									if(qres2){
-										socket.emit('boardDetailsFromSession', qres, qres2);
-									}
-									else {
-										socket.emit('sessionNotFound');
-									}
+								Board_id = qres.Board_id;
+								Boarddb.query('SELECT * FROM Boards WHERE Board_id = ?', Board_id)
+									.on('result', function(res){
+										qres = res;
+									})
+									.on('end', function(){
+									Boarddb.query('SELECT * FROM Sockets WHERE Board_id = ?', Board_id, function(err, res2){
+										qres2 = res2;
+										if(err){
+											throw err
+										}
+										if(qres2){
+											socket.emit('boardDetailsFromSession', qres, qres2);
+										}
+										else {
+											socket.emit('sessionNotFound');
+										}
+									});
 								});
 							}
 							else {
@@ -250,7 +299,7 @@ io.on('connection', function(socket){
 												else
 												Boarddb.query('UPDATE Sockets SET Socket_ReqState = \'OFF\' WHERE Socket_No = ? AND Board_id = ?', [Number(SocketNo), BoardID]);
 												Boarddb.query('UPDATE Sockets SET Socket_Status = \'Updating\' WHERE Socket_No = ? AND Board_id = ?', [Number(SocketNo), BoardID]);
-            			});
+            				});
             });
   	});
 });

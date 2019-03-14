@@ -245,7 +245,7 @@
 		<script>
 			var socket = io();
 			var State1, State2, State3, State4, OnColor = "#4CAF50", OffColor = "red";
-			var Board, Socket, Session_id, timer;
+			var Board, Socket, Session_token, timer;
 
 			socket.on('boardDetailsFromSession', function(res, res2){
 				Board = res;
@@ -267,8 +267,8 @@
 
 			function initialize(){
 				const urlParams = new URLSearchParams(window.location.search);
-				Session_id = urlParams.get('session_id');
-				socket.emit('getBoardDetails', Session_id);
+				Session_token = urlParams.get('session_token');
+				socket.emit('getBoardDetails', Session_token);
 				document.getElementById("allon").style.background = "orange";
 				document.getElementById("alloff").style.background = "orange";
 				//refreshButtonStates();
@@ -288,7 +288,7 @@
 						document.getElementById("alert").style.display = 'none';
 					}, 10000);
 				}, 5000);
-				socket.emit('tryToLogout', Session_id);
+				socket.emit('tryToLogout', Session_token);
 			}
 
 			socket.on('tryToLogoutSuccess', function(){

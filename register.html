@@ -149,16 +149,39 @@
  	<body onload="initialize();">
 		<script>
 			var socket = io();
+
+
 			function initialize(){
+
 			}
 
 			function emitCredentials(){
+				document.getElementById("alert").style.display = 'none';
 				var Boardname = document.getElementById("uname").value;
 				var Oldpassword = document.getElementById("oldpsw").value;
 				var Newpassword = document.getElementById("newpsw").value;
-				socket.emit('tryToRegister', Boardname, Oldpassword, Newpassword);
+				if(Boardname.length > 2 && Oldpassword.length > 5 && Newpassword.length > 5){
+					socket.emit('tryToRegister', Boardname, Oldpassword, Newpassword);
+				}
+				else {
+					document.getElementById("alert").innerHTML = "Boardname & password should be more than 2 & 6 characters long respectively";
+					document.getElementById("alert").style.display = 'block';
+				}
 				return false;
 			}
+
+			socket.on('tryToRegisterSuccess', function(){
+				document.getElementById("alert").innerHTML = "Success. Redirecting to login page...";
+				document.getElementById("alert").style.display = 'block';
+				setTimeout(function(){
+    			window.location.href = "login.html";
+				}, 2000);
+			});
+
+			socket.on('tryToRegisterFailed', function(error){
+				document.getElementById("alert").innerHTML = error;
+				document.getElementById("alert").style.display = 'block';
+			});
 
 		</script>
 
@@ -190,6 +213,9 @@
 					</div>
 					<div class="row">
 				    <button type="submit">Register</button>
+					</div>
+					<div class="row">
+				    <label id="alert" style="display:none; font-size: 16px; color: blue">Incorrect boardname or password!</label>
 					</div>
 					</form>
 				</creden>

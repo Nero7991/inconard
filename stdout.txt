@@ -1,9 +1,875 @@
 listening on *:443
 listening on *:80
 User connected
+GET URL:  /
 User connected
-Button 2 pressed for board 'Proto1', Board ID=1, Socket state=OFF
+GET URL:  /
+User disconnected
+User connected
+User disconnected
+GET URL:  /
+User connected
+Login Attempt using Board name: oioiioi
+Login failed
+User connected
+Login Attempt using Board name: Proto1
+Login success
+$2b$10$bZZYJchJvDbO8uvVbPjAreiC.fsYoTmlbYFYgq.X3OrE6USv3zsZS
+Query ended
+User disconnected
+User connected
+$2b$10$bZZYJchJvDbO8uvVbPjAreiC.fsYoTmlbYFYgq.X3OrE6USv3zsZS
+Board found
+User disconnected
+User connected
 User disconnected
 User disconnected
 User connected
 User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+GET URL:  /
+User connected
+$2b$10$VzCvF5pxzVahbKdEUm7OMuppSSO1CU36zkCtYQ5itQyh49gUdA1TW
+Query ended
+User connected
+User disconnected
+User disconnected
+User disconnected
+User connected
+User connected
+User connected
+GET URL:  /
+User disconnected
+User connected
+User disconnected
+User disconnected
+User connected
+GET URL:  /
+User disconnected
+User connected
+User disconnected
+User disconnected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User disconnected
+User connected
+GET URL:  /
+GET URL:  /
+User connected
+User disconnected
+User disconnected
+User connected
+User disconnected
+User connected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+GET URL:  /
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+Login Attempt using Board name: Proto1
+Login success
+$2b$10$bDl3F0G3.wOA3Oele1IVv.lECbelR2MOodaV9fGOyWFoZbvLQFbL.
+Query ended
+User disconnected
+User connected
+$2b$10$bDl3F0G3.wOA3Oele1IVv.lECbelR2MOodaV9fGOyWFoZbvLQFbL.
+Board found
+User disconnected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User connected
+User disconnected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+GET URL:  /
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+GET URL:  /
+Login Attempt using Board name: Proto1
+Login success
+$2b$10$1y5KIuZx2gD/F7Rkg0byuuk.FVa22QGjaSAXC1LM7VmfqB03KOdRu
+Query ended
+User disconnected
+User connected
+$2b$10$1y5KIuZx2gD/F7Rkg0byuuk.FVa22QGjaSAXC1LM7VmfqB03KOdRu
+Board found
+$210$1y5KIuZx2gD/F7Rkg0byuuk.FVa22QGjaSAXC1LM7VmfqB03KOdRu
+Query ended
+User disconnected
+User connected
+Login Attempt using Board name: Proto1
+Login success
+$2b$10$K2WXGoN7hf40PwPF/HM68O7KqD4emCUcu3rEdT2PO4Bi61Re89MYW
+Query ended
+User disconnected
+User connected
+$2b$10$K2WXGoN7hf40PwPF/HM68O7KqD4emCUcu3rEdT2PO4Bi61Re89MYW
+Board found
+$2b$10$1y5KIuZx2gD/F7Rkg0byuuk.FVa22QGjaSAXC1LM7VmfqB03KOdRu
+Query ended
+User disconnected
+User connected
+User disconnected
+User connected
+Register Attempt using Board name: Proto1
+Board found
+ReferenceError: res is not defined
+    at Query.<anonymous> (/usr/inconard/server.js:177:39)
+    at emitNone (events.js:111:20)
+    at Query.emit (events.js:208:7)
+    at Query.Sequence.end (/usr/inconard/node_modules/mysql/lib/protocol/sequences/Sequence.js:86:12)
+    at Query._handleFinalResultPacket (/usr/inconard/node_modules/mysql/lib/protocol/sequences/Query.js:139:8)
+    at Query.EofPacket (/usr/inconard/node_modules/mysql/lib/protocol/sequences/Query.js:123:8)
+    at Protocol._parsePacket (/usr/inconard/node_modules/mysql/lib/protocol/Protocol.js:278:23)
+    at Parser.write (/usr/inconard/node_modules/mysql/lib/protocol/Parser.js:76:12)
+    at Protocol.write (/usr/inconard/node_modules/mysql/lib/protocol/Protocol.js:38:16)
+    at Socket.<anonymous> (/usr/inconard/node_modules/mysql/lib/Connection.js:91:28)
+Register Attempt using Board name: Proto1
+Board found
+ReferenceError: res is not defined
+    at Query.<anonymous> (/usr/inconard/server.js:177:39)
+    at emitNone (events.js:111:20)
+    at Query.emit (events.js:208:7)
+    at Query.Sequence.end (/usr/inconard/node_modules/mysql/lib/protocol/sequences/Sequence.js:86:12)
+    at Query._handleFinalResultPacket (/usr/inconard/node_modules/mysql/lib/protocol/sequences/Query.js:139:8)
+    at Query.EofPacket (/usr/inconard/node_modules/mysql/lib/protocol/sequences/Query.js:123:8)
+    at Protocol._parsePacket (/usr/inconard/node_modules/mysql/lib/protocol/Protocol.js:278:23)
+    at Parser.write (/usr/inconard/node_modules/mysql/lib/protocol/Parser.js:76:12)
+    at Protocol.write (/usr/inconard/node_modules/mysql/lib/protocol/Protocol.js:38:16)
+    at Socket.<anonymous> (/usr/inconard/node_modules/mysql/lib/Connection.js:91:28)
+GET URL:  /
+User disconnected
+User connected
+Login Attempt using Board name: Proto1
+Login failed
+Login Attempt using Board name: Proto1
+Login success
+$2b$10$9tUE2SHsmAc4HiYSSRhFg.yQRAD47iyoTSOnbhulzPrXf9xg3mFhm
+Query ended
+User disconnected
+User connected
+$2b$10$9tUE2SHsmAc4HiYSSRhFg.yQRAD47iyoTSOnbhulzPrXf9xg3mFhm
+Board found
+User disconnected
+User connected
+Register Attempt using Board name: Proto2
+Board found
+Hashing...
+Query ended
+Registered successfully
+GET URL:  /
+User disconnected
+User connected
+Login Attempt using Board name: Proto2
+Login success
+$2b$10$Xq/EPq.pxntgBQSdiGOCGe0t3FTi6XgJ3.m3h3ln6GFVPi65C1pZK
+Query ended
+User disconnected
+User connected
+$2b$10$Xq/EPq.pxntgBQSdiGOCGe0t3FTi6XgJ3.m3h3ln6GFVPi65C1pZK
+Board found
+User disconnected
+User connected
+Login Attempt using Board name: Proto2
+Login failed
+Login Attempt using Board name: Proto2
+Login success
+$2b$10$ibRM7CA73oTDoqyTzteDAOobRwltMTj4gPwOILT.pX4TcNNM/NC/m
+Query ended
+User disconnected
+User connected
+$2b$10$ibRM7CA73oTDoqyTzteDAOobRwltMTj4gPwOILT.pX4TcNNM/NC/m
+Board found
+User disconnected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User disconnected
+GET URL:  /
+GET URL:  /
+User connected
+User connected
+User disconnected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User connected
+User disconnected
+User disconnected
+GET URL:  /
+User connected
+User connected
+User disconnected
+User disconnected
+db error { Error: Connection lost: The server closed the connection.
+    at Protocol.end (/usr/inconard/node_modules/mysql/lib/protocol/Protocol.js:112:13)
+    at Socket.<anonymous> (/usr/inconard/node_modules/mysql/lib/Connection.js:97:28)
+    at Socket.<anonymous> (/usr/inconard/node_modules/mysql/lib/Connection.js:502:10)
+    at emitNone (events.js:111:20)
+    at Socket.emit (events.js:208:7)
+    at endReadableNT (_stream_readable.js:1064:12)
+    at _combinedTickCallback (internal/process/next_tick.js:138:11)
+    at process._tickCallback (internal/process/next_tick.js:180:9) fatal: true, code: 'PROTOCOL_CONNECTION_LOST' }
+$2b$10$bDl3F0G3.wOA3Oele1IVv.lECbelR2MOodaV9fGOyWFoZbvLQFbL.
+Query ended
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User connected
+User disconnected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User disconnected
+User connected
+User disconnected
+GET URL:  /
+User connected
+User connected
+User disconnected
+User disconnected
+{ Error: Connection lost: The server closed the connection.
+    at Protocol.end (/usr/inconard/node_modules/mysql/lib/protocol/Protocol.js:112:13)
+    at Socket.<anonymous> (/usr/inconard/node_modules/mysql/lib/Connection.js:97:28)
+    at Socket.<anonymous> (/usr/inconard/node_modules/mysql/lib/Connection.js:502:10)
+    at emitNone (events.js:111:20)
+    at Socket.emit (events.js:208:7)
+    at endReadableNT (_stream_readable.js:1064:12)
+    at _combinedTickCallback (internal/process/next_tick.js:138:11)
+    at process._tickCallback (internal/process/next_tick.js:180:9) fatal: true, code: 'PROTOCOL_CONNECTION_LOST' }
+GET URL:  /
+User connected
+User connected
+User disconnected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User connected
+GET URL:  /
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+GET URL:  /
+User connected
+User disconnected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User disconnected
+User disconnected
+GET URL:  /
+User connected
+User connected
+User connected
+User disconnected
+User disconnected
+User disconnected
+User connected
+User connected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User disconnected
+User disconnected
+User connected
+User connected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User disconnected
+User disconnected
+User connected
+User connected
+User connected
+User disconnected
+User connected
+User disconnected
+User disconnected
+User disconnected
+User connected
+User connected
+User connected
+User disconnected
+User disconnected
+User disconnected
+User connected
+User connected
+User connected
+User disconnected
+User disconnected
+User disconnected
+User connected
+User connected
+User connected
+User disconnected
+User disconnected
+User disconnected
+User connected
+User connected
+User connected
+User disconnected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+User disconnected
+User disconnected
+User disconnected
+User connected
+User connected
+User connected
+User disconnected
+User disconnected
+User disconnected
+User connected
+User connected
+User connected
+User disconnected
+User disconnected
+User disconnected
+User connected
+User connected
+User connected
+User disconnected
+User disconnected
+User disconnected
+User connected
+User connected
+User connected
+User disconnected
+User connected
+User disconnected
+User disconnected
+User connected
+User connected
+GET URL:  /
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User connected
+User disconnected
+User disconnected
+User disconnected
+User connected
+User connected
+User connected
+GET URL:  /
+User connected
+Login Attempt using Board name: Proto1
+Login failed
+Login Attempt using Board name: Proto1
+Login failed
+Login Attempt using Board name: Proto2
+Login failed
+GET URL:  /
+User disconnected
+User connected
+Login Attempt using Board name: Proto1
+Login failed
+Login Attempt using Board name: proto1
+Login failed
+User disconnected
+User disconnected
+GET URL:  /
+User connected
+Login Attempt using Board name: Proto1
+Login failed

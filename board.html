@@ -17,13 +17,13 @@
 			}
 
 			.set-button button {
-					margin: auto;
+							margin: auto;
     					height: 70%;
     					padding: 0;
     					background:url("icons/clock.png");
 
     					width: 70%;
-					border: 0
+							border: 0
 			}
 
 			.set-button button:hover {
@@ -63,10 +63,32 @@
 				border: 2px solid black;
 			}
 
+			.btn-group2 button {
+				margin: auto;
+				text-align: center;
+   			background-color: #666; 		 /* Green background */
+				border: 2px solid grey;			 /* Green border */
+				border-radius: 12px;
+				color: white;					 /* White text */
+				padding: 7px 12px; 				 /* Some padding */
+				cursor: pointer; 				 /* Pointer/hand icon */
+				width: 80%; 						 /* Set a width if needed */
+				display: block; 					 /* Make the buttons appear below each other */
+			}
+
+			.btn-group2 button:not(:last-child) {
+				border-bottom: none; /* Prevent double borders */
+			}
+
+			/* Add a background color on hover */
+			.btn-group2 button:hover {
+				border: 2px solid black;
+			}
+
 			.btn-group button {
 				margin: auto;
 				text-align: center;
-   				background-color: red; 		 /* Green background */
+   			background-color: red; 		 /* Green background */
 				border: 2px solid grey;			 /* Green border */
 				border-radius: 16px;
 				color: white;					 /* White text */
@@ -112,6 +134,12 @@
 				padding: 1%;
 				padding-bottom: 8px;
 				padding-top: 8px;
+			}
+
+			.column3 {
+					padding: 5px;
+  				float: left;
+  				width: 31%;
 			}
 
 			.column1 {
@@ -184,7 +212,7 @@
 
 			status {
 				display: block;
-				background-color: #800000;
+				background-color: #7c2a2a;
 				border-radius: 14px;
 				padding: 5px;
 				margin: 8px auto;
@@ -217,16 +245,29 @@
 		<script>
 			var socket = io();
 			var State1, State2, State3, State4, OnColor = "#4CAF50", OffColor = "red";
-			var Board;
+			var Board, Socket, Session_id, timer;
 
-			socket.on('boardDetailsFromSession', function(res){
+			socket.on('boardDetailsFromSession', function(res, res2){
 				Board = res;
-				document.getElementById("brdname").innerHTML = Board.Board_name;
+				Socket = res2;
+				document.getElementById("brdname").innerHTML = Board.Board_title;
+				document.getElementById("brdstatus").innerHTML = Board.Board_status;
+				document.getElementById("brdmodel").innerHTML = Board.Board_Model;
+				document.getElementById("s1").innerHTML = Socket[0].Socket_Name;
+				document.getElementById("s2").innerHTML = Socket[1].Socket_Name;
+				document.getElementById("s3").innerHTML = Socket[2].Socket_Name;
+				document.getElementById("s4").innerHTML = Socket[3].Socket_Name;
+			});
+
+			socket.on('sessionNotFound', function(){
+				setTimeout(function(){
+    			window.location.href = "login.html";
+				}, 2000);
 			});
 
 			function initialize(){
 				const urlParams = new URLSearchParams(window.location.search);
-				var Session_id = urlParams.get('session_id');
+				Session_id = urlParams.get('session_id');
 				socket.emit('getBoardDetails', Session_id);
 				document.getElementById("allon").style.background = "orange";
 				document.getElementById("alloff").style.background = "orange";
@@ -236,6 +277,28 @@
 				State3 = "OFF";
 				State4 = "OFF";
 			}
+
+			function logout(button){
+				document.getElementById("alert").innerHTML = "Logging out, please wait.";
+				document.getElementById("alert").style.display = 'block';
+				  timer = setTimeout(function(){
+					document.getElementById("alert").innerHTML = "No response from server, please check your internet connection.";
+					document.getElementById("alert").style.display = 'block';
+					timeer = setTimeout(function(){
+						document.getElementById("alert").style.display = 'none';
+					}, 10000);
+				}, 5000);
+				socket.emit('tryToLogout', Session_id);
+			}
+
+			socket.on('tryToLogoutSuccess', function(){
+				window.location.href = "login.html";
+			});
+
+			socket.on('tryToLogoutFailed', function(err){
+				document.getElementById("alert").innerHTML = error;
+				document.getElementById("alert").style.display = 'block';
+			});
 
 			function refreshButtonStates(){
 				updateButtonState(document.getElementById("1"));
@@ -289,7 +352,7 @@ state is received from the board itself. Thus, the color represents the
 actual value of the pin.*/
 
 			function toggleSocket(button){
-				socket.emit('button pressed', button.id, BoardName);
+				socket.emit('button pressed', button.id, Board.Board_name);
 				$.ajax({
 					url: "/toggleSocket?socket="+button.id,
 					success: function(result){
@@ -310,11 +373,23 @@ actual value of the pin.*/
 		</header>
 		<div class="container">			<!--Container opens here-->
 			<status>
+				<div class="row" style="padding: 6px">
+					<div class="column1">
+						<div class="column3">Board Name: <label id=brdname>Unknown</label>
+						</div>
+						<div class="column3">Status: <label id=brdstatus>Unknown</label>
+						</div>
+						<div class="column3">Board Model: <label id=brdmodel>Unknown</label>
+						</div>
+					</div>
+					<div class="column2">
+						<div class="btn-group2">
+							<button type="button" onclick="logout(this)" id="set1">Logout</button>
+						</div>
+					</div>
+				</div>
 				<div class="row">
-					<div class="column">Board Name: <label id=brdname>Unknown</label>
-					</div>
-					<div class="column">Status: Disconnected
-					</div>
+					<label id="alert" style="color: white; font-size: 16px;  display: none">Error</label>
 				</div>
 			</status>
 			<div class="row">					<!--Main row start-->
@@ -361,7 +436,7 @@ actual value of the pin.*/
 				<div class="column">			<!--Main column 1 start-->
 					<div class="wrapper">
 						<div class="row">
-							<socket id="s1">Socket 3</socket>
+							<socket id="s3">Socket 3</socket>
 						</div>
 						<div class="row">
 							<div class="column1">
@@ -380,7 +455,7 @@ actual value of the pin.*/
 				<div class="column">			<!--Main column 2 start-->
 					<div class="wrapper">
 						<div class="row">
-							<socket id="s2">Socket 4</socket>
+							<socket id="s4">Socket 4</socket>
 						</div>
 						<div class="row">
 							<div class="column1">
@@ -401,7 +476,7 @@ actual value of the pin.*/
 				<div class="column">			<!--Main column 1 start-->
 					<div class="wrapper">
 						<div class="row">
-							<socket id="s2">All On</socket>
+							<socket id="s5">All On</socket>
 						</div>
 						<div class="row">
 							<div class="btn-group">
@@ -413,7 +488,7 @@ actual value of the pin.*/
 				<div class="column">			<!--Main column 2 start-->
 					<div class="wrapper">
 						<div class="row">
-							<socket id="s2">All Off</socket>
+							<socket id="s6">All Off</socket>
 						</div>
 						<div class="row">
 							<div class="btn-group">

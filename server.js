@@ -18,7 +18,7 @@ var Boarddb_config = {
 		password : 'Orencollaco123',
 		database: 'boardDB'
 };
-var Boarddb = mysql.createConnection(Boarddb_config)
+var Boarddb = mysql.createConnection(Boarddb_config);
 var options = {
   key: fs.readFileSync('/etc/letsencrypt/live/www.inconard.com/privkey.pem'),
 	cert: fs.readFileSync('/etc/letsencrypt/live/www.inconard.com/cert.pem'),
@@ -36,6 +36,12 @@ var BoardName, BoardID, SocketState;
 
 function handleDbDisconnect(){
 	Boarddb = mysql.createConnection(Boarddb_config);
+	Boarddb.connect(function(err) {              // The server is either down
+	    if(err) {                                     // or restarting (takes a while sometimes).
+	      console.log('error when connecting to db:', err);
+	      setTimeout(handleDbDisconnect, 2000); // We introduce a delay before attempting to reconnect,
+	    }                                     // to avoid a hot loop, and to allow our node script to
+	});
 }
 
 // Log any errors connected to the db
@@ -75,6 +81,10 @@ app.get('/', function(req, res){
 
 app.get('/register.html', function(req, res){
 	res.sendFile(__dirname + '/register.html');
+});
+
+app.get('/login.html', function(req, res){
+	res.sendFile(__dirname + '/login.html');
 });
 
 app.get('/board.html', function(req, res){
@@ -135,9 +145,21 @@ io.on('connection', function(socket){
 
 	});
 
+	socket.on('tryToLogout', function(Session_id){
+		Boarddb.query('UPDATE Boards SET Session_id = ? WHERE Session_id = ?', [null, Session_id], function(err, res){
+			if(err || (res.affectedRows == 0)){
+				socket.emit('tryToLogoutFailed', "Database error");
+			}
+			else {
+				socket.emit('tryToLogoutSuccess');
+				}
+		});	//
+	});
+
 	socket.on('getBoardDetails', function(Session_id){
 		console.log(Session_id);
 		var qres = null;
+		var qres2 = null;
 		Boarddb.query('SELECT * FROM Boards WHERE Session_id = ?', Session_id)
 						.on('result', function(res){
 							qres = res;
@@ -145,7 +167,16 @@ io.on('connection', function(socket){
 						.on('end', function(){
 							if(qres){
 								console.log('Board found');
-								socket.emit('boardDetailsFromSession', qres);
+								//socket.emit('boardDetailsFromSession', qres);
+								Boarddb.query('SELECT * FROM Sockets WHERE Board_id = ?', qres.Board_id, function(err, res2){
+									qres2 = res2;
+									if(qres2){
+										socket.emit('boardDetailsFromSession', qres, qres2);
+									}
+									else {
+										socket.emit('sessionNotFound');
+									}
+								});
 							}
 							else {
 								socket.emit('sessionNotFound');
@@ -174,27 +205,27 @@ io.on('connection', function(socket){
  								 });
  							 }
  							 else{
- 								 bcrypt.compare(Oldpassword, res.Board_pass, function(err, comp_res) {
+ 								 bcrypt.compare(Oldpassword, qres.Board_pass, function(err, comp_res) {
  										 if(err)
  										 console.log('Bcrypt Error:' + err);
  										 if(comp_res == true){
  											 bcrypt.hash(Newpassword, saltRounds, function(err, hash) {
  												 if(err)
  												 console.log('Bcrypt Error:' + err);
- 												 Boarddb.query('UPDATE Boards SET Board_pass = ? WHERE Board_name = ?', [hash, BoardName])	// Store hash in your password DB.
+ 												 Boarddb.query('UPDATE Boards SET Board_pass = ? WHERE Board_name = ?', [hash, Boardname])	// Store hash in your password DB.
  												 socket.emit('tryToRegisterSuccess');		//Tell client, registered successful
  												 console.log('Registered successfully');
  											 });
  										 }
  										 else {
- 											 socket.emit('tryToRegisterFailed', 'Invalid');
+ 											 socket.emit('tryToRegisterFailed', "Invalid old password. Please try again.");
  											 console.log('Registering failed');
  										 }
  								 });
  							 }
  						 }
  						 else {
- 								 socket.emit('tryToRegisterFailed', 'NoBoard');
+ 								 socket.emit('tryToRegisterFailed', "Board name does not exist. Please try again");
  								 console.log('Registering failed');
  						 }
 							console.log('Query ended');

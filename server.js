@@ -131,6 +131,7 @@ io.on('connection', function(socket){
 					//console.log('here2');
 					if(err){
 						console.log('Database error:' + err);
+					}
 					if(res2.affectedRows){
 						isBoard = null;
 						console.log('Board disconnected, ping timeout');

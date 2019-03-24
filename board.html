@@ -246,17 +246,33 @@
 			var socket = io();
 			var State1, State2, State3, State4, OnColor = "#4CAF50", OffColor = "red";
 			var Board, Socket, Session_token, timer;
+			var updateElement = "ALL";
 
 			socket.on('boardDetailsFromSession', function(res, res2){
 				Board = res;
 				Socket = res2;
-				document.getElementById("brdname").innerHTML = Board.Board_title;
-				document.getElementById("brdstatus").innerHTML = Board.Board_status;
-				document.getElementById("brdmodel").innerHTML = Board.Board_Model;
-				document.getElementById("s1").innerHTML = Socket[0].Socket_Name;
-				document.getElementById("s2").innerHTML = Socket[1].Socket_Name;
-				document.getElementById("s3").innerHTML = Socket[2].Socket_Name;
-				document.getElementById("s4").innerHTML = Socket[3].Socket_Name;
+				switch (updateElement) {
+					case "ALL":
+						updateSocketTitles();
+						updateElement = "SOME";
+					case "SOME":
+						updateStatusBar();
+						refreshButtonStates();
+						break;
+					default:
+				}
+			});
+
+			socket.on('boardDisconnected', function(){
+				socket.emit('getBoardDetails', Session_token);
+			});
+
+			socket.on('boardConnected', function(){
+				socket.emit('getBoardDetails', Session_token);
+			});
+
+			socket.on('socketStateChanged', function(){
+				socket.emit('getBoardDetails', Session_token);
 			});
 
 			socket.on('sessionNotFound', function(){
@@ -271,11 +287,19 @@
 				socket.emit('getBoardDetails', Session_token);
 				document.getElementById("allon").style.background = "orange";
 				document.getElementById("alloff").style.background = "orange";
-				//refreshButtonStates();
-				State1 = "OFF";
-				State2 = "OFF";
-				State3 = "OFF";
-				State4 = "OFF";
+			}
+
+			function updateStatusBar(){
+				document.getElementById("brdname").innerHTML = Board.Board_title;
+				document.getElementById("brdstatus").innerHTML = Board.Board_status;
+				document.getElementById("brdmodel").innerHTML = Board.Board_Model;
+			}
+
+			function updateSocketTitles(){
+				document.getElementById("s1").innerHTML = Socket[0].Socket_Name;
+				document.getElementById("s2").innerHTML = Socket[1].Socket_Name;
+				document.getElementById("s3").innerHTML = Socket[2].Socket_Name;
+				document.getElementById("s4").innerHTML = Socket[3].Socket_Name;
 			}
 
 			function logout(button){
@@ -301,28 +325,10 @@
 			});
 
 			function refreshButtonStates(){
-				updateButtonState(document.getElementById("1"));
-				updateButtonState(document.getElementById("2"));
-				updateButtonState(document.getElementById("3"));
-				updateButtonState(document.getElementById("4"));
-			}
-
-			function turnAllOn(button){
-				$.ajax({
-					url: "/turnAllOn?socket="+button.id,
-					success: function(result){
-						refreshButtonStates();
-        				}
-				});
-			}
-
-			function turnAllOff(button){
-				$.ajax({
-					url: "/turnAllOff?socket="+button.id,
-					success: function(result){
-						refreshButtonStates();
-        				}
-				});
+				updateButtonState(document.getElementById("1"), 0);
+				updateButtonState(document.getElementById("2"), 1);
+				updateButtonState(document.getElementById("3"), 2);
+				updateButtonState(document.getElementById("4"), 3);
 			}
 
 /* Called when button is pressed with argument being the button itself */
@@ -331,18 +337,11 @@
 				toggleSocket(button);
 			}
 
-			function updateButtonState(button){
-				$.ajax({
-					url: "/getStatus?socket="+button.id,
-					success: function(result){
-						if(result == "State1"){
-							button.style.background = "#4CAF50";
-						}
-						else	{
-							button.style.background = "red";
-						}
-        				}
-				});
+			function updateButtonState(button, i){
+				if(Socket[i].Socket_State == "ON")
+					button.style.background = "#4CAF50";
+				else
+					button.style.background = "red";
 			}
 
 
@@ -353,17 +352,6 @@ actual value of the pin.*/
 
 			function toggleSocket(button){
 				socket.emit('button pressed', button.id, Board.Board_name);
-				$.ajax({
-					url: "/toggleSocket?socket="+button.id,
-					success: function(result){
-						if(result == "State1"){
-							button.style.background = "#4CAF50";
-						}
-						else	{
-							button.style.background = "red";
-						}
-        				}
-				});
 			}
 
 

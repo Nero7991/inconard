@@ -357,6 +357,35 @@ io.on('connection', function(socket){
 			});
 	});
 
+	socket.on('socketStateChanged', function(Board_uid, SocketNo, State){
+		var qres = null, SocketReqState = "OFF";
+    process.stdout.write('Socket : '+ String(SocketNo) + ' , State : ' + String(State));
+		Boarddb.query('SELECT * FROM Boards WHERE Board_uid = ?', String(Board_uid))
+					 .on('result', function(res){
+							BoardID = res.Board_id;
+							qres = res;
+						})
+						.on('end', function(){
+                process.stdout.write(', Board ID=' + Number(BoardID));
+								Boarddb.query('SELECT Socket_ReqState FROM Sockets WHERE Socket_No = ? AND Board_id = ?', [Number(SocketNo), BoardID])
+										.on('result', function(res){
+												SocketReqState = String(res.Socket_ReqState);
+											})
+										.on('end', function(){
+               				  process.stdout.write(', Socket state=' + SocketReqState + '\n');
+												if(State == "1"){
+													Boarddb.query('UPDATE Sockets SET Socket_State = \'ON\' WHERE Socket_No = ? AND Board_id = ?', [Number(SocketNo), BoardID]);
+													socket.broadcast.emit('socketStateChanged', String(SocketNo), 'ON');
+												}
+												else{
+													Boarddb.query('UPDATE Sockets SET Socket_State = \'OFF\' WHERE Socket_No = ? AND Board_id = ?', [Number(SocketNo), BoardID]);
+													socket.broadcast.emit('socketStateChanged', String(SocketNo), 'OFF');
+												}
+												Boarddb.query('UPDATE Sockets SET Socket_Status = \'Updating\' WHERE Socket_No = ? AND Board_id = ?', [Number(SocketNo), BoardID]);
+            				});
+            });
+  });
+
 	socket.on('writeSocketStateSuccess', function(Board_uid, SocketNo){
 		var qres = null, SocketReqState = "OFF";
     process.stdout.write('Write success for socket '+String(SocketNo));
@@ -381,7 +410,7 @@ io.on('connection', function(socket){
 													Boarddb.query('UPDATE Sockets SET Socket_State = \'OFF\' WHERE Socket_No = ? AND Board_id = ?', [Number(SocketNo), BoardID]);
 													socket.broadcast.emit('socketStateChanged', String(SocketNo), 'OFF');
 												}
-												Boarddb.query('UPDATE Sockets SET Socket_Status = \'Updating\' WHERE Socket_No = ? AND Board_id = ?', [Number(SocketNo), BoardID]);
+												Boarddb.query('UPDATE Sockets SET Socket_Status = \'Normal\' WHERE Socket_No = ? AND Board_id = ?', [Number(SocketNo), BoardID]);
             				});
             });
   });

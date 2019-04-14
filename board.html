@@ -332,13 +332,17 @@
 			}
 
 			function turnAllOn(button){
-				//socket.emit('button pressed', "1", Board.Board_name);
+				socket.emit('changeAll', Board.Board_name, "ON");
+			}
+
+			function turnAllOff(button){
+				socket.emit('changeAll', Board.Board_name, "OFF");
 			}
 
 /* Called when button is pressed with argument being the button itself */
 
 			function togglePressed(button){
-				toggleSocket(button);
+				socket.emit('togglePressed', button.id, Board.Board_name);
 			}
 
 			function updateButtonState(button, i){
@@ -353,13 +357,8 @@
 button and updates the button color to represent the new state. The new
 state is received from the board itself. Thus, the color represents the
 actual value of the pin.*/
-
-			function toggleSocket(button){
-				socket.emit('button pressed', button.id, Board.Board_name);
-			}
-
-
 		</script>
+
 		<header>
 			<inco>inConard</inco>
 		</header>
@@ -494,8 +493,8 @@ actual value of the pin.*/
 		<footer>
 			<project>Bachelor Year Project 2019</Project>
 			<name>Oren Collaco</name>
-			<name>Oshan Pereira</name>
 			<name>Maria Roseline Chettiar</name>
+			<name>Oshan Pereira</name>
 			<name>Under Guidance of <br>
 				Prof. Shilpa Patil</name>
 		</footer>

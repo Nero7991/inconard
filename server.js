@@ -42,24 +42,19 @@ function handleDbDisconnect(){
 	      setTimeout(handleDbDisconnect, 2000); // We introduce a delay before attempting to reconnect,
 	    }                                     // to avoid a hot loop, and to allow our node script to
 	});
+
+  Boarddb.on('error', function(err) {
+      console.log('db error', err);
+      if(err.code === 'PROTOCOL_CONNECTION_LOST') { // Connection to the MySQL server is usually
+        handleDbDisconnect();                         // lost due to either server restart, or a
+      } else {                                      // connnection idle timeout (the wait_timeout
+        handleDbDisconnect();
+        throw err;                                  // server variable configures this)
+      }
+  });
 }
 
-// Log any errors connected to the db
-Boarddb.connect(function(err) {              // The server is either down
-    if(err) {                                     // or restarting (takes a while sometimes).
-      console.log('error when connecting to db:', err);
-      setTimeout(handleDbDisconnect, 2000); // We introduce a delay before attempting to reconnect,
-    }                                     // to avoid a hot loop, and to allow our node script to
-});
-
-Boarddb.on('error', function(err) {
-    console.log('db error', err);
-    if(err.code === 'PROTOCOL_CONNECTION_LOST') { // Connection to the MySQL server is usually
-      handleDbDisconnect();                         // lost due to either server restart, or a
-    } else {                                      // connnection idle timeout (the wait_timeout
-      throw err;                                  // server variable configures this)
-    }
-});
+handleDbDisconnect();
 
 app.use(express.static('public'));
 
@@ -402,6 +397,7 @@ io.on('connection', function(socket){
 											})
 										.on('end', function(){
                				  process.stdout.write(', Socket state=' + SocketReqState + '\n');
+                        Boarddb.query('UPDATE Sockets SET Socket_Status = \'Normal\' WHERE Socket_No = ? AND Board_id = ?', [Number(SocketNo), BoardID]);
 												if(SocketReqState == "ON"){
 													Boarddb.query('UPDATE Sockets SET Socket_State = \'ON\' WHERE Socket_No = ? AND Board_id = ?', [Number(SocketNo), BoardID]);
 													socket.broadcast.emit('socketStateChanged', String(SocketNo), 'ON');
@@ -410,12 +406,27 @@ io.on('connection', function(socket){
 													Boarddb.query('UPDATE Sockets SET Socket_State = \'OFF\' WHERE Socket_No = ? AND Board_id = ?', [Number(SocketNo), BoardID]);
 													socket.broadcast.emit('socketStateChanged', String(SocketNo), 'OFF');
 												}
-												Boarddb.query('UPDATE Sockets SET Socket_Status = \'Normal\' WHERE Socket_No = ? AND Board_id = ?', [Number(SocketNo), BoardID]);
             				});
             });
   });
 
-	socket.on('button pressed', function(SocketNo, BoardName){
+  socket.on('writeAllSocketStateSuccess', function(Board_uid, State){
+		var qres = null, SocketReqState = "OFF";
+    process.stdout.write('Write success for all sockets, State : '+String(State));
+		Boarddb.query('SELECT * FROM Boards WHERE Board_uid = ?', String(Board_uid))
+					 .on('result', function(res){
+							BoardID = res.Board_id;
+							qres = res;
+						})
+						.on('end', function(){
+                process.stdout.write(', Board ID =' + Number(BoardID));
+								Boarddb.query('UPDATE Sockets SET Socket_State = ? WHERE Board_id = ?', [State, BoardID]);
+								socket.broadcast.emit('socketStateChanged', "13", 'OFF');
+								Boarddb.query('UPDATE Sockets SET Socket_Status = \'Normal\' WHERE Board_id = ?', [BoardID]);
+            });
+  });
+
+	socket.on('togglePressed', function(SocketNo, BoardName){
 		var qres = null;
     process.stdout.write('Button '+String(SocketNo)+ ' pressed for board \'' + String(BoardName)+'\'');
 		Boarddb.query('SELECT * FROM Boards WHERE Board_name = ?', String(BoardName))
@@ -434,19 +445,38 @@ io.on('connection', function(socket){
 												if(SocketState == "OFF"){
 													Boarddb.query('UPDATE Sockets SET Socket_ReqState = \'ON\' WHERE Socket_No = ? AND Board_id = ?', [Number(SocketNo), BoardID]);
 														if(qres.Board_status == "Connected"){
-														console.log('Sending request to board...');
-														io.to(qres.Board_sid).emit('writeSocketState', String(SocketNo), 'ON');
+  														console.log('Sending request to board...');
+  														io.to(qres.Board_sid).emit('writeSocketState', String(SocketNo), 'ON');
 													}
 												}
 												else{
 													Boarddb.query('UPDATE Sockets SET Socket_ReqState = \'OFF\' WHERE Socket_No = ? AND Board_id = ?', [Number(SocketNo), BoardID]);
 														if(qres.Board_status == "Connected"){
-														console.log('Sending request to board...');
-														io.to(qres.Board_sid).emit('writeSocketState', String(SocketNo), 'OFF');
+  														console.log('Sending request to board...');
+  														io.to(qres.Board_sid).emit('writeSocketState', String(SocketNo), 'OFF');
 													}
 												}
 												Boarddb.query('UPDATE Sockets SET Socket_Status = \'Updating\' WHERE Socket_No = ? AND Board_id = ?', [Number(SocketNo), BoardID]);
             				});
+            });
+  });
+
+  socket.on('changeAll', function(BoardName, State){
+		var qres = null;
+    process.stdout.write('All on pressed for board \'' + String(BoardName) + '\'');
+		Boarddb.query('SELECT * FROM Boards WHERE Board_name = ?', String(BoardName))
+					 .on('result', function(res){
+							BoardID = res.Board_id;
+							qres = res;
+						})
+						.on('end', function(){
+                process.stdout.write(', Board ID=' + Number(BoardID));
+								Boarddb.query('UPDATE Sockets SET Socket_ReqState = ? WHERE Board_id = ?', [State, BoardID]);
+								if(qres.Board_status == "Connected"){
+  								console.log('Sending request to board...');
+  								io.to(qres.Board_sid).emit('writeSocketState', "13", State);
+  								Boarddb.query('UPDATE Sockets SET Socket_Status = \'Updating\' WHERE Board_id = ?', [BoardID]);
+                }
             });
   });
 

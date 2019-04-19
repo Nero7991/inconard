@@ -106,7 +106,7 @@ io.on('connection', function(socket){
 	//socket.emit('someting', "yum", "num", 1);
 	var clientID, Remember1 = null;
 	var Session_token1 = null;
-
+  var BoardSID = null;
 	var Board_uid = null;
 	connectedClients += 1;
 	clientID = connectedClients;
@@ -114,32 +114,53 @@ io.on('connection', function(socket){
 	var PingTestTimer;
 	var BoardPingOK = null;
 	var isBoard = false;
-
+  var AttemptCount = 0;
 	function checkBoardLink(){
-		if(BoardPingOK){
+		if(BoardPingOK == "YES"){
+      AttemptCount = 0;
 			BoardPingOK = null;
-			//PingTestTimer = setTimeout(checkBoardLink, 2000);
+      io.to(BoardSID).emit('youThere?','');
+			PingTestTimer = setTimeout(checkBoardLink, 2000);
 		}
 		else {
-			if(isBoard){
-				Boarddb.query('UPDATE Boards SET Board_sid = null, Board_status = \'Not Connected\' WHERE Board_uid = ?',[Board_uid], function(err, res2){
-					//console.log('here2');
-					if(err){
-						console.log('Database error:' + err);
-					}
-					if(res2.affectedRows){
-						isBoard = null;
-						console.log('Board disconnected, ping timeout');
-						io.sockets.emit('boardDisconnected','');
-					}
-				});
-			}
+      console.log('No respose, trying again...');
+      if(AttemptCount > 2){
+        AttemptCount = 0;
+  			if(isBoard){
+  				Boarddb.query('UPDATE Boards SET Board_sid = null, Board_status = \'Not Connected\' WHERE Board_uid = ?',[Board_uid], function(err, res2){
+  					//console.log('here2');
+  					if(err){
+  						console.log('Database error:' + err);
+  					}
+  					if(res2.affectedRows){
+  						isBoard = null;
+  						console.log('Board disconnected, ping timeout');
+  						io.sockets.emit('boardDisconnected','');
+              io.to(BoardSID).disconnect();
+              BoardSID = null;
+              isBoard = null;
+              Boarddb.query('UPDATE Sockets SET Socket_State = ? WHERE Board_id = ?', ["OFF", BoardID]);
+              socket.broadcast.emit('socketStateChanged', "13", 'OFF');
+  					}
+  				});
+  			}
+      }
+      else {
+        if(isBoard){
+          AttemptCount += 1;
+          BoardPingOK = null;
+          io.to(BoardSID).emit('youThere?','');
+    			PingTestTimer = setTimeout(checkBoardLink, 1000);
+        }
+      }
 		}
 	}
-	socket.on('ping', function(){
+
+	socket.on('yeahBored', function(str){
 		//console.log("Pinged");
 		BoardPingOK = "YES";
 	});
+
   socket.on('disconnect', function(){
 		if(isBoard){
 			Boarddb.query('UPDATE Boards SET Board_sid = null, Board_status = \'Not Connected\' WHERE Board_uid = ?',[Board_uid], function(err, res2){
@@ -151,6 +172,10 @@ io.on('connection', function(socket){
 					isBoard = null;
 					console.log('Board disconnected');
 					io.sockets.emit('boardDisconnected','');
+          BoardSID = null;
+          isBoard = null;
+          Boarddb.query('UPDATE Sockets SET Socket_State = ? WHERE Board_id = ?', ["OFF", BoardID]);
+          socket.broadcast.emit('socketStateChanged', "13", 'OFF');
 				}
 			});
 		}
@@ -341,10 +366,11 @@ io.on('connection', function(socket){
 						if(res2.affectedRows){
 							Board_uid = qres.Board_uid;
 							isBoard = true;
-							//PingTestTimer = setTimeout(checkBoardLink, 2000);
-							BoardPingOK = "YES";
 							console.log('Board Connected');
 							io.sockets.emit('boardConnected', '');
+              BoardSID = Board_sid;
+              //PingTestTimer = setTimeout(checkBoardLink, 3000);
+							BoardPingOK = "YES";
 							//socket.emit('updateClientDetails');
 						}
 					});
@@ -473,7 +499,7 @@ io.on('connection', function(socket){
                 process.stdout.write(', Board ID=' + Number(BoardID));
 								Boarddb.query('UPDATE Sockets SET Socket_ReqState = ? WHERE Board_id = ?', [State, BoardID]);
 								if(qres.Board_status == "Connected"){
-  								console.log('Sending request to board...');
+  								console.log(', Sending request to board...');
   								io.to(qres.Board_sid).emit('writeSocketState', "13", State);
   								Boarddb.query('UPDATE Sockets SET Socket_Status = \'Updating\' WHERE Board_id = ?', [BoardID]);
                 }

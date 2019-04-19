@@ -352,6 +352,16 @@
 					button.style.background = "red";
 			}
 
+			function handleVisibilityChange() {
+			  if (document.visibilityState == "hidden") {
+
+			  } else {
+					updateStatusBar();
+					refreshButtonStates();
+			  }
+			}
+
+			document.addEventListener('visibilitychange', handleVisibilityChange, false);
 
 /*Toggles the pin that controls the TRIAC for the socket referenced by the
 button and updates the button color to represent the new state. The new

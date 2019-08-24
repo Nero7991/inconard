@@ -1,0 +1,8 @@
+.red .active a,
+.red .active a:hover {
+    background-color: red;
+}
+
+.nav-pills > a.active {
+    color: white !important;
+}

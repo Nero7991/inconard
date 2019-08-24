@@ -7,8 +7,8 @@
 		<script>document.createElement("name")</script>
 		<script>document.createElement("project")</script>
 		<script src="/socket.io/socket.io.js"></script>
-		<script src="/js/jquery.min.js"></script>
-		<script src="/js/knob.js"></script>
+		<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    
 		<style>
 			.center {
 				margin: auto;
@@ -244,9 +244,23 @@
  	<body onload="initialize();">
 		<script>
 			var socket = io();
-			var State1, State2, State3, State4, OnColor = "#4CAF50", OffColor = "red";
+			var Str1, Str2, Str3, Str4, OnColor = "#4CAF50", OffColor = "red";
 			var Board, Socket, Session_token, timer;
 			var updateElement = "ALL";
+
+			$(document).ready(function(){
+				$(document).on("click", ".socketLabel", function(event){
+					//alert(event.target.textContent.length);
+				});
+				$(document).on("keypress", "#s1", function(event){
+					var keycode = (event.keyCode ? event.keyCode : event.which);
+					if(keycode == '13'){
+						alert(event.target.textContent.length);
+						event.preventDefault();
+					}
+					event.stopPropagation();
+				});
+			});
 
 			socket.on('boardDetailsFromSession', function(res, res2){
 				Board = res;
@@ -397,7 +411,9 @@ actual value of the pin.*/
 				<div class="column">			<!--Main column 1 start-->
 					<div class="wrapper">
 						<div class="row">
-							<socket id="s1">Socket 1</socket>
+
+							<socket><label id="s1" class="socketLabel" contentEditable="true">Socket 1</label></socket>
+							
 						</div>
 						<div class="row">
 							<div class="column1">
@@ -416,7 +432,7 @@ actual value of the pin.*/
 				<div class="column">			<!--Main column 2 start-->
 					<div class="wrapper">
 						<div class="row">
-							<socket id="s2">Socket 2</socket>
+							<socket><label id="s2" class="socketLabel" contentEditable="true">Socket 2</label></socket>
 						</div>
 						<div class="row">
 							<div class="column1">
@@ -437,7 +453,7 @@ actual value of the pin.*/
 				<div class="column">			<!--Main column 1 start-->
 					<div class="wrapper">
 						<div class="row">
-							<socket id="s3">Socket 3</socket>
+							<socket><label id="s3" class="socketLabel" contentEditable="true">Socket 3</label></socket>
 						</div>
 						<div class="row">
 							<div class="column1">
@@ -456,7 +472,7 @@ actual value of the pin.*/
 				<div class="column">			<!--Main column 2 start-->
 					<div class="wrapper">
 						<div class="row">
-							<socket id="s4">Socket 4</socket>
+							<socket><label id="s4" class="socketLabel" contentEditable="true">Socket 4</label></socket>
 						</div>
 						<div class="row">
 							<div class="column1">

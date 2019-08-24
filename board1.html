@@ -7,10 +7,7 @@
 		<script>document.createElement("name")</script>
 		<script>document.createElement("project")</script>
 		<script src="/socket.io/socket.io.js"></script>
-		<script src="/js/jquery.min.js"></script>
-		<script src="/js/knob.js"></script>
-		<script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css"></script>
-		<script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
 		<style>
 			.center {
 				margin: auto;
@@ -19,13 +16,13 @@
 			}
 
 			.set-button button {
-					margin: auto;
+							margin: auto;
     					height: 70%;
     					padding: 0;
     					background:url("icons/clock.png");
 
     					width: 70%;
-					border: 0
+							border: 0
 			}
 
 			.set-button button:hover {
@@ -65,10 +62,32 @@
 				border: 2px solid black;
 			}
 
+			.btn-group2 button {
+				margin: auto;
+				text-align: center;
+   			background-color: #666; 		 /* Green background */
+				border: 2px solid grey;			 /* Green border */
+				border-radius: 12px;
+				color: white;					 /* White text */
+				padding: 7px 12px; 				 /* Some padding */
+				cursor: pointer; 				 /* Pointer/hand icon */
+				width: 80%; 						 /* Set a width if needed */
+				display: block; 					 /* Make the buttons appear below each other */
+			}
+
+			.btn-group2 button:not(:last-child) {
+				border-bottom: none; /* Prevent double borders */
+			}
+
+			/* Add a background color on hover */
+			.btn-group2 button:hover {
+				border: 2px solid black;
+			}
+
 			.btn-group button {
 				margin: auto;
 				text-align: center;
-   				background-color: red; 		 /* Green background */
+   			background-color: red; 		 /* Green background */
 				border: 2px solid grey;			 /* Green border */
 				border-radius: 16px;
 				color: white;					 /* White text */
@@ -114,6 +133,12 @@
 				padding: 1%;
 				padding-bottom: 8px;
 				padding-top: 8px;
+			}
+
+			.column3 {
+					padding: 5px;
+  				float: left;
+  				width: 31%;
 			}
 
 			.column1 {
@@ -186,7 +211,7 @@
 
 			status {
 				display: block;
-				background-color: #800000;
+				background-color: #7c2a2a;
 				border-radius: 14px;
 				padding: 5px;
 				margin: 8px auto;
@@ -217,133 +242,185 @@
 	</head>
  	<body onload="initialize();">
 		<script>
-			var socket = io();
+			//var socket = io();
 			var State1, State2, State3, State4, OnColor = "#4CAF50", OffColor = "red";
-			var BoardName = "Proto1"
+			var Board, Socket, Session_token, timer;
+			var updateElement = "ALL";
+
+			socket.on('boardDetailsFromSession', function(res, res2){
+				Board = res;
+				Socket = res2;
+				switch (updateElement) {
+					case "ALL":
+						updateSocketTitles();
+						updateElement = "SOME";
+					case "SOME":
+						updateStatusBar();
+						refreshButtonStates();
+						break;
+					default:
+				}
+			});
+
+			socket.on('boardDisconnected', function(){
+				socket.emit('getBoardDetails', Session_token);
+			});
+
+			socket.on('boardConnected', function(){
+				socket.emit('getBoardDetails', Session_token);
+			});
+
+			socket.on('socketStateChanged', function(){
+				socket.emit('getBoardDetails', Session_token);
+			});
+
+			socket.on('sessionNotFound', function(){
+				setTimeout(function(){
+    			window.location.href = "login.html";
+				}, 2000);
+			});
+
 			function initialize(){
 
+				const urlParams = new URLSearchParams(window.location.search);
+				Session_token = urlParams.get('session_token');
+				socket.emit('getBoardDetails', Session_token);
 				document.getElementById("allon").style.background = "orange";
 				document.getElementById("alloff").style.background = "orange";
-				//refreshButtonStates();
-				State1 = "OFF";
-				State2 = "OFF";
-				State3 = "OFF";
-				State4 = "OFF";
 			}
 
+
+				$('#s6').click(function() {
+					var e = 0;
+					document.getElementById("s1").innerHTML = "hahaha";
+	            if (e.keyCode == 13) {
+								document.getElementById("s1").innerHTML = "hahaha";
+	              alert("Enter pressed");
+	            }
+	    	});
+
+				$(document).on("click", "#s1",function() {
+                alert('hello there!');
+								document.getElementById("s2").innerHTML = "hahaha";
+            });
+
+				$(document).ready(function(){
+		  		$(document).on("click", "#s6", function(){
+						document.getElementById("s1").innerHTML = "hahaha";
+		    		alert("The paragraph was clicked.");
+		  		});
+				});
+
+			function updateStatusBar(){
+				document.getElementById("brdname").innerHTML = Board.Board_title;
+				document.getElementById("brdstatus").innerHTML = Board.Board_status;
+				document.getElementById("brdmodel").innerHTML = Board.Board_Model;
+			}
+
+			function updateSocketTitles(){
+				document.getElementById("s1").innerHTML = Socket[0].Socket_Name;
+				document.getElementById("s2").innerHTML = Socket[1].Socket_Name;
+				document.getElementById("s3").innerHTML = Socket[2].Socket_Name;
+				document.getElementById("s4").innerHTML = Socket[3].Socket_Name;
+			}
+
+			function logout(button){
+				document.getElementById("alert").innerHTML = "Logging out, please wait.";
+				document.getElementById("alert").style.display = 'block';
+				  timer = setTimeout(function(){
+					document.getElementById("alert").innerHTML = "No response from server, please check your internet connection.";
+					document.getElementById("alert").style.display = 'block';
+					timeer = setTimeout(function(){
+						document.getElementById("alert").style.display = 'none';
+					}, 10000);
+				}, 5000);
+				socket.emit('tryToLogout', Session_token);
+			}
+
+			socket.on('tryToLogoutSuccess', function(){
+				window.location.href = "login.html";
+			});
+
+			socket.on('tryToLogoutFailed', function(err){
+				document.getElementById("alert").innerHTML = error;
+				document.getElementById("alert").style.display = 'block';
+			});
+
 			function refreshButtonStates(){
-				updateButtonState(document.getElementById("1"));
-				updateButtonState(document.getElementById("2"));
-				updateButtonState(document.getElementById("3"));
-				updateButtonState(document.getElementById("4"));
+				updateButtonState(document.getElementById("1"), 0);
+				updateButtonState(document.getElementById("2"), 1);
+				updateButtonState(document.getElementById("3"), 2);
+				updateButtonState(document.getElementById("4"), 3);
 			}
 
 			function turnAllOn(button){
-				$.ajax({
-					url: "/turnAllOn?socket="+button.id,
-					success: function(result){
-						refreshButtonStates();
-        				}
-				});
+				socket.emit('changeAll', Board.Board_name, "ON");
 			}
 
 			function turnAllOff(button){
-				$.ajax({
-					url: "/turnAllOff?socket="+button.id,
-					success: function(result){
-						refreshButtonStates();
-        				}
-				});
+				socket.emit('changeAll', Board.Board_name, "OFF");
 			}
 
 /* Called when button is pressed with argument being the button itself */
 
 			function togglePressed(button){
-				toggleSocket(button);
+				socket.emit('togglePressed', button.id, Board.Board_name);
 			}
 
-			function updateButtonState(button){
-				$.ajax({
-					url: "/getStatus?socket="+button.id,
-					success: function(result){
-						if(result == "State1"){
-							button.style.background = "#4CAF50";
-						}
-						else	{
-							button.style.background = "red";
-						}
-        				}
-				});
+			function updateButtonState(button, i){
+				if(Socket[i].Socket_State == "ON")
+					button.style.background = "#4CAF50";
+				else
+					button.style.background = "red";
 			}
 
+			function handleVisibilityChange() {
+			  if (document.visibilityState == "hidden") {
+
+			  } else {
+					updateStatusBar();
+					refreshButtonStates();
+			  }
+			}
+
+			document.addEventListener('visibilitychange', handleVisibilityChange, false);
 
 /*Toggles the pin that controls the TRIAC for the socket referenced by the
 button and updates the button color to represent the new state. The new
 state is received from the board itself. Thus, the color represents the
 actual value of the pin.*/
-
-			function toggleSocket(button){
-				socket.emit('button pressed', button.id, BoardName);
-				$.ajax({
-					url: "/toggleSocket?socket="+button.id,
-					success: function(result){
-						if(result == "State1"){
-							button.style.background = "#4CAF50";
-						}
-						else	{
-							button.style.background = "red";
-						}
-        				}
-				});
-			}
-
-			var defaultText = 'Click me and enter some text';
-
-			function endEdit(e) {
-			    var input = $(e.target),
-			        label = input && input.prev();
-
-			    label.text(input.val() === '' ? defaultText : input.val());
-			    input.hide();
-			    label.show();
-			}
-
-			$('.clickedit').hide()
-			.focusout(endEdit)
-			.keyup(function (e) {
-			    if ((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)) {
-			        endEdit(e);
-			        return false;
-			    } else {
-			        return true;
-			    }
-			})
-			.prev().click(function () {
-			    $(this).hide();
-			    $(this).next().show().focus();
-			});
-
 		</script>
+
 		<header>
 			<inco>inConard</inco>
 		</header>
 		<div class="container">			<!--Container opens here-->
 			<status>
-				<div class="row">
-					<div class="column">Board Name: Proto1
+				<div class="row" style="padding: 6px">
+					<div class="column1">
+						<div class="column3">Board Name: <label id=brdname>Unknown</label>
+						</div>
+						<div class="column3">Status: <label id=brdstatus>Unknown</label>
+						</div>
+						<div class="column3">Board Model: <label id=brdmodel>Unknown</label>
+						</div>
 					</div>
-					<div class="column">Status: Disconnected
+					<div class="column2">
+						<div class="btn-group2">
+							<button type="button" onclick="logout(this)" id="set1">Logout</button>
+						</div>
 					</div>
 				</div>
+				<div class="row">
+					<label id="alert" style="color: white; font-size: 16px;  display: none">Error</label>
+				</div>
 			</status>
+			<p>Click this paragraph.</p>
 			<div class="row">					<!--Main row start-->
 				<div class="column">			<!--Main column 1 start-->
 					<div class="wrapper">
 						<div class="row">
-							<socket id="s1"><label class="pull-left">Socket 1</label>
-															<input class="clickedit" type="text" />
-															<div class="clearfix"></div>
-							</socket>
+							<socket><label id="s1" contentEditable="true">Socket 1</label></socket>
 						</div>
 						<div class="row">
 							<div class="column1">
@@ -362,7 +439,7 @@ actual value of the pin.*/
 				<div class="column">			<!--Main column 2 start-->
 					<div class="wrapper">
 						<div class="row">
-							<socket id="s2">Socket 2</socket>
+							<socket><label id="s2" contentEditable="true">Socket 2</label></socket>
 						</div>
 						<div class="row">
 							<div class="column1">
@@ -383,7 +460,7 @@ actual value of the pin.*/
 				<div class="column">			<!--Main column 1 start-->
 					<div class="wrapper">
 						<div class="row">
-							<socket id="s1">Socket 3</socket>
+							<socket><label id="s3" contentEditable="true">Socket 3</label></socket>
 						</div>
 						<div class="row">
 							<div class="column1">
@@ -402,7 +479,7 @@ actual value of the pin.*/
 				<div class="column">			<!--Main column 2 start-->
 					<div class="wrapper">
 						<div class="row">
-							<socket id="s2">Socket 4</socket>
+							<socket><label id="s4" contentEditable="true">Socket 4</label></socket>
 						</div>
 						<div class="row">
 							<div class="column1">
@@ -423,7 +500,7 @@ actual value of the pin.*/
 				<div class="column">			<!--Main column 1 start-->
 					<div class="wrapper">
 						<div class="row">
-							<socket id="s2">All On</socket>
+							<socket id="s5">All On</socket>
 						</div>
 						<div class="row">
 							<div class="btn-group">
@@ -435,7 +512,7 @@ actual value of the pin.*/
 				<div class="column">			<!--Main column 2 start-->
 					<div class="wrapper">
 						<div class="row">
-							<socket id="s2">All Off</socket>
+							<socket id="s6">All Off</socket>
 						</div>
 						<div class="row">
 							<div class="btn-group">
@@ -449,8 +526,8 @@ actual value of the pin.*/
 		<footer>
 			<project>Bachelor Year Project 2019</Project>
 			<name>Oren Collaco</name>
-			<name>Oshan Pereira</name>
 			<name>Maria Roseline Chettiar</name>
+			<name>Oshan Pereira</name>
 			<name>Under Guidance of <br>
 				Prof. Shilpa Patil</name>
 		</footer>

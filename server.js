@@ -45,7 +45,7 @@ function handleDbDisconnect(){
 
   Boarddb.on('error', function(err) {
       console.log('db error', err);
-      if(err.code === 'PROTOCOL_CONNECTION_LOST') { // Connection to the MySQL server is usually
+      if(err.code == 'PROTOCOL_CONNECTION_LOST') { // Connection to the MySQL server is usually
         handleDbDisconnect();                         // lost due to either server restart, or a
       } else {                                      // connnection idle timeout (the wait_timeout
         handleDbDisconnect();
@@ -78,26 +78,27 @@ app.get('/register.html', function(req, res){
 	res.sendFile(__dirname + '/register.html');
 });
 
-app.get('/login.html', function(req, res){
+app.get('/login', function(req, res){
 	res.sendFile(__dirname + '/login.html');
 });
 
-app.get('/board.html', function(req, res){
-	var qres = null;
-	console.log(req.query.session_token);
-	Boarddb.query('SELECT * FROM Sessions WHERE Session_token = ?', req.query.session_token)
-				.on('result', function(res1){
-					qres = res1;
-				})
-				.on('end', function(){
-					if(qres){
-						res.sendFile(__dirname + '/board.html');
-					}
-					else {
-						res.sendFile(__dirname + '/login.html');
-					}
-					console.log('Query ended');
-				});
+app.get('/board', function(req, res){
+	res.sendFile(__dirname + '/board.html');
+	// var qres = null;
+	// console.log(req.query.session_token);
+	// Boarddb.query('SELECT * FROM Sessions WHERE Session_token = ?', req.query.session_token)
+	// 			.on('result', function(res1){
+	// 				qres = res1;
+	// 			})
+	// 			.on('end', function(){
+	// 				if(qres){
+	// 					res.sendFile(__dirname + '/board.html');
+	// 				}
+	// 				else {
+	// 					res.sendFile(__dirname + '/login.html');
+	// 				}
+	// 				console.log('Query ended');
+	// 			});
 });
 
 
